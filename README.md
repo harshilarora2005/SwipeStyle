@@ -4,15 +4,15 @@
 ## Core Components
 
 1. **Database Schema**: The PostgreSQL database design includes tables for users, clothing items, attribute tokens, user preferences, swipes, wishlist items, and outfits.
-2. 
-3. **Backend Architecture**: The Spring Boot application includes:
+   
+2. **Backend Architecture**: The Spring Boot application includes:
    - Authentication system with JWT
    - Web scraper for clothing data acquisition
    - AI integration for clothing description
    - Recommendation engine based on user preferences
    - RESTful API endpoints for all functionality
 
-4. **Frontend Design**: The React application features:
+3. **Frontend Design**: The React application features:
    - Swipe interface with smooth animations
    - User authentication and profile management
    - Style preference selection
