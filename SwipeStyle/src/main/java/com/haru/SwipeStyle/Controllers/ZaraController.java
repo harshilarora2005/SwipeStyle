@@ -1,7 +1,7 @@
 package com.haru.SwipeStyle.Controllers;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.model.ZaraProduct;
-import com.haru.SwipeStyle.Services.ZaraScrapingService;
+import com.haru.SwipeStyle.Services.impl.ZaraScrapingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ public class ZaraController {
     private ZaraScrapingService zaraService;
 
     @GetMapping("/scrape")
-    public ResponseEntity<?> scrapeZaraProducts(
+    public ResponseEntity<?> scrapeProducts(
             @RequestParam String categoryUrl,
             @RequestParam(defaultValue = "3") int maxScrolls) {
         try {

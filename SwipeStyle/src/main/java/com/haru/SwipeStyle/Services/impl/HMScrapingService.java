@@ -1,7 +1,8 @@
-package com.haru.SwipeStyle.Services;
+package com.haru.SwipeStyle.Services.impl;
 
 
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
+import com.haru.SwipeStyle.Services.SwipeStyleService;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -9,13 +10,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.*;
 
 @Service
-public class HMScrapingService {
+public class HMScrapingService implements SwipeStyleService {
 
     @Autowired
     private ApplicationContext applicationContext;
@@ -26,7 +25,8 @@ public class HMScrapingService {
         return applicationContext.getBean(WebDriver.class);
     }
 
-    public List<ClothingDTO> scrapeHMProductsByPages(String baseCategoryUrl, int maxPages) {
+    @Override
+    public List<ClothingDTO> scrapeProducts(String baseCategoryUrl, int maxPages) {
         WebDriver driver = getWebDriver();
         List<ClothingDTO> products = new ArrayList<>();
         Set<String> seenProductIds = new HashSet<>();
