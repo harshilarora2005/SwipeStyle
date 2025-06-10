@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "clothing_items", indexes = {
-        @Index(name = "idx_category", columnList = "category"),
         @Index(name = "idx_price", columnList = "price"),
         @Index(name = "idx_created_at", columnList = "createdAt")
 })
@@ -44,12 +43,13 @@ public class Clothing {
     @Column(name="product_url")
     private String productUrl;
 
-    @Column(name = "alt_text")
+    @Column(name = "alt_text",columnDefinition = "TEXT")
     private String altText;
 
-    @Column(nullable = false)
+    @Column(name="created_at",nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist

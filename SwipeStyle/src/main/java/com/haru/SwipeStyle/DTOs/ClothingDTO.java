@@ -12,14 +12,16 @@ public class ClothingDTO {
     private String name;
     private String price;
     private String imageUrl;
+    private String gender;
     private String productUrl;
     private String altText;
 
 
     public ClothingDTO() {}
 
-    public ClothingDTO(String productId, String name, String price, String imageUrls, String productUrl, String altText) {
+    public ClothingDTO(String productId, String name, String Gender,String price, String imageUrls, String productUrl, String altText) {
         this.productId = productId;
+        this.gender = Gender;
         this.name = name;
         this.price = price;
         this.imageUrl = imageUrls;

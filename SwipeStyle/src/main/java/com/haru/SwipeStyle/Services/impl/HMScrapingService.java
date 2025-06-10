@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 
-@Service
+@Service("")
 public class HMScrapingService implements SwipeStyleService {
 
     @Autowired
@@ -25,14 +25,16 @@ public class HMScrapingService implements SwipeStyleService {
         return applicationContext.getBean(WebDriver.class);
     }
 
+    private String gender;
+
     @Override
-    public List<ClothingDTO> scrapeProducts(String baseCategoryUrl, int maxPages) {
+    public List<ClothingDTO> scrapeProducts(String baseCategoryUrl, int maxPages,String gender) {
         WebDriver driver = getWebDriver();
         List<ClothingDTO> products = new ArrayList<>();
         Set<String> seenProductIds = new HashSet<>();
-
+        this.gender = gender;
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             handleCookieConsent(driver, wait);
 
             for (int page = 1; page <= maxPages; page++) {
@@ -64,8 +66,7 @@ public class HMScrapingService implements SwipeStyleService {
                     }
                 }
 
-                // Optional: small delay to avoid being flagged
-                Thread.sleep(2000);
+                Thread.sleep(500);
             }
 
         } catch (Exception e) {
@@ -110,7 +111,7 @@ public class HMScrapingService implements SwipeStyleService {
 
             String altText = imgElement.getAttribute("alt");
 
-            return new ClothingDTO(productId, name, price, imageUrl, productUrl, altText);
+            return new ClothingDTO(productId, name, gender, price, imageUrl, productUrl, altText);
 
         } catch (Exception e) {
             System.err.println("Error extracting individual product: " + e.getMessage());
