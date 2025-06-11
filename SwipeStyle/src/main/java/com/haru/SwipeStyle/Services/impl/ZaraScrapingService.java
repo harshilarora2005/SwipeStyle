@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 
-
 @Service
 public class ZaraScrapingService implements SwipeStyleService {
 
@@ -22,14 +21,13 @@ public class ZaraScrapingService implements SwipeStyleService {
     private WebDriver getWebDriver() {
         return applicationContext.getBean(WebDriver.class);
     }
-    String gender;
 
     @Override
     public List<ClothingDTO> scrapeProducts(String categoryUrl, int maxScrolls,String gender) {
         WebDriver driver = getWebDriver();
         List<ClothingDTO> products = new ArrayList<>();
         Set<String> seenProductIds = new HashSet<>();
-        this.gender = gender;
+
         try {
             driver.get(categoryUrl);
 
@@ -39,6 +37,10 @@ public class ZaraScrapingService implements SwipeStyleService {
                     By.cssSelector("li.product-grid-product")
             ));
 
+            WebElement button = driver.findElement(
+                    By.cssSelector("button[aria-label='Switch to zoom 2']")
+            );
+            button.click();
 
             handleCookieConsent(driver, wait);
 
@@ -53,7 +55,7 @@ public class ZaraScrapingService implements SwipeStyleService {
 
                 for (WebElement productElement : productElements) {
                     try {
-                        ClothingDTO product = extractProductData(productElement);
+                        ClothingDTO product = extractProductData(productElement,gender);
                         if (product != null && !seenProductIds.contains(product.getProductId())) {
                             products.add(product);
                             seenProductIds.add(product.getProductId());
@@ -78,72 +80,93 @@ public class ZaraScrapingService implements SwipeStyleService {
         return products;
     }
 
-    private ClothingDTO extractProductData(WebElement productElement) {
+    private ClothingDTO extractProductData(WebElement productElement, String gender) {
         try {
-            String productId = productElement.getAttribute("data-productid");
-            String imageUrl = "";
-            try {
-                WebElement imageElement = productElement.findElement(
-                        By.cssSelector("img.media-image__image")
-                );
-                imageUrl = imageElement.getAttribute("src");
-                if (imageUrl == null || imageUrl.isEmpty()) {
-                    imageUrl = imageElement.getAttribute("data-src");
-                }
-            } catch (NoSuchElementException e) {
-                imageUrl = "";
-            }
+            String productId = extractProductId(productElement);
+            String imageUrl = extractImageUrl(productElement);
+            String productUrl = extractProductUrl(productElement);
+            String altText = extractAltText(productElement);
+            String productName = extractProductName(productElement);
+            String productPrice = extractProductPrice(productElement);
 
-            String productUrl = "";
-            try {
-                WebElement linkElement = productElement.findElement(
-                        By.cssSelector("a.product-link")
-                );
-                productUrl = linkElement.getAttribute("href");
-            } catch (NoSuchElementException e) {
-                productUrl = "";
-            }
-
-            String altText = "";
-            try {
-                WebElement imageElement = productElement.findElement(
-                        By.cssSelector("img.media-image__image")
-                );
-                altText = imageElement.getAttribute("alt");
-            } catch (NoSuchElementException e) {
-                altText = "";
-            }
-            List<String> details = getProductDetailsFromPage(productUrl);
             if (productId != null && !productId.isEmpty()) {
-                return new ClothingDTO(productId, details.getFirst(), gender, details.getLast(), imageUrl,productUrl,altText);
+                return new ClothingDTO(productId, productName, gender, productPrice, imageUrl, productUrl, altText);
             }
-
         } catch (Exception e) {
             System.err.println("Error extracting individual product: " + e.getMessage());
         }
-
         return null;
     }
-    private List<String> getProductDetailsFromPage(String productUrl) {
-        WebDriver detailDriver = getWebDriver();
-        WebDriverWait detailWait = new WebDriverWait(detailDriver, Duration.ofSeconds(10));
-        List<String> details = new ArrayList<>();
-        try {
-            detailDriver.get(productUrl);
-            detailWait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
-            Thread.sleep(1000);
-            String name = getProductName(detailDriver);
-            String price = getProductPrice(detailDriver);
-            details.add(name);
-            details.add(price);
-        } catch (Exception e) {
-            details.add("Name not found");
-            details.add("Price not found");
-        } finally {
-            detailDriver.quit();
-        }
-        return details;
+    private String extractProductId(WebElement productElement) {
+        return productElement.getAttribute("data-productid");
     }
+
+    private String extractImageUrl(WebElement productElement) {
+        try {
+            WebElement imageElement = productElement.findElement(By.cssSelector("img.media-image__image"));
+            String src = imageElement.getAttribute("src");
+            return (src == null || src.isEmpty()) ? imageElement.getAttribute("data-src") : src;
+        } catch (NoSuchElementException e) {
+            return "";
+        }
+    }
+
+    private String extractProductUrl(WebElement productElement) {
+        try {
+            WebElement linkElement = productElement.findElement(By.cssSelector("a.product-link"));
+            return linkElement.getAttribute("href");
+        } catch (NoSuchElementException e) {
+            return "";
+        }
+    }
+
+    private String extractAltText(WebElement productElement) {
+        try {
+            WebElement imageElement = productElement.findElement(By.cssSelector("img.media-image__image"));
+            return imageElement.getAttribute("alt");
+        } catch (NoSuchElementException e) {
+            return "";
+        }
+    }
+
+    private String extractProductName(WebElement productElement) {
+        try {
+            WebElement nameElement = productElement.findElement(By.cssSelector(".product-grid-product-info__name h3"));
+            return nameElement.getText().trim();
+        } catch (NoSuchElementException e) {
+            return "Unknown Product";
+        }
+    }
+
+    private String extractProductPrice(WebElement productElement) {
+        try {
+            WebElement priceElement = productElement.findElement(By.cssSelector(".price-current__amount .money-amount__main"));
+            return priceElement.getText().trim();
+        } catch (NoSuchElementException e) {
+            return "No price found";
+        }
+    }
+
+//    private List<String> getProductDetailsFromPage(String productUrl) {
+//        WebDriver detailDriver = getWebDriver();
+//        WebDriverWait detailWait = new WebDriverWait(detailDriver, Duration.ofSeconds(1));
+//        List<String> details = new ArrayList<>();
+//        try {
+//            detailDriver.get(productUrl);
+//            detailWait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
+//            Thread.sleep(500);
+//            String name = getProductName(detailDriver);
+//            String price = getProductPrice(detailDriver);
+//            details.add(name);
+//            details.add(price);
+//        } catch (Exception e) {
+//            details.add("Name not found");
+//            details.add("Price not found");
+//        } finally {
+//            detailDriver.quit();
+//        }
+//        return details;
+//    }
 
     private void scrollToLoadMore(WebDriver driver) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -180,29 +203,28 @@ public class ZaraScrapingService implements SwipeStyleService {
             //
         }
     }
-    private String getProductPrice(WebDriver element) {
-        String price = "";
-        try{
-            WebElement priceElement = element.findElement(
-                    By.cssSelector(".price-current__amount .money-amount__main")
-            );
-            price = priceElement.getText().trim();
-        }catch (NoSuchElementException e){
-            price = "No price found";
-        }
-        return price;
-    }
-    private String getProductName(WebDriver element) {
-        String productName = "";
-        try{
-            WebElement productNameElement = element.findElement(
-                    By.cssSelector(".product-detail-info__header-name")
-            );
-            productName = productNameElement.getText().trim();
-        }catch (NoSuchElementException e){
-            productName = "Unknown Product";
-        }
-        return productName;
-    }
-
+//    private String getProductPrice(WebDriver element) {
+//        String price = "";
+//        try{
+//            WebElement priceElement = element.findElement(
+//                    By.cssSelector(".price-current__amount .money-amount__main")
+//            );
+//            price = priceElement.getText().trim();
+//        }catch (NoSuchElementException e){
+//            price = "No price found";
+//        }
+//        return price;
+//    }
+//    private String getProductName(WebDriver element) {
+//        String productName = "";
+//        try{
+//            WebElement productNameElement = element.findElement(
+//                    By.cssSelector(".product-detail-info__header-name")
+//            );
+//            productName = productNameElement.getText().trim();
+//        }catch (NoSuchElementException e){
+//            productName = "Unknown Product";
+//        }
+//        return productName;
+//    }
 }

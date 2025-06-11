@@ -3,10 +3,6 @@ package com.haru.SwipeStyle.Mapper;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component
 public class ClothingMapper {
 

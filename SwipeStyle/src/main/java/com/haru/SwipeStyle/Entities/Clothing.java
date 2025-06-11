@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -51,6 +53,9 @@ public class Clothing {
 
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "clothing", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<UserClothing> userInteractions = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

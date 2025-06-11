@@ -1,5 +1,6 @@
 package com.haru.SwipeStyle.Services;
 
+import com.haru.SwipeStyle.Components.ScraperCountdown;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Entities.JobEntity;
@@ -34,6 +35,9 @@ public class UrlProvider {
 
     @Autowired
     private JobRepo jobRepository;
+
+    @Autowired
+    private ScraperCountdown scraperCountdown;
 
     @Autowired
     private HMScrapingService hmScrapingService;
@@ -185,6 +189,7 @@ public class UrlProvider {
 
             swipeStyleRepo.saveAll(clothingEntities);
             System.out.println("Successfully saved " + newProducts.size() + " new products");
+            scraperCountdown.markScraperDone();
         } else {
             System.out.println("No new products to save - all were duplicates");
         }

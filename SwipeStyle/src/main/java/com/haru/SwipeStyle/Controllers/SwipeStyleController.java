@@ -1,5 +1,6 @@
 package com.haru.SwipeStyle.Controllers;
 
+import com.haru.SwipeStyle.Components.ScraperCountdown;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
@@ -10,8 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,13 +27,25 @@ public class SwipeStyleController {
     @Autowired
     private UrlProvider urlProvider;
 
+    @Autowired
+    private ScraperCountdown scraperCountdown;
+
     @GetMapping("products")
-    public ResponseEntity<List<ClothingDTO>> getProducts(
+    public ResponseEntity<?> getProducts(
             @RequestParam(defaultValue = "0") int page) {
+
+        if (!scraperCountdown.isCompleted()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("status", "loading");
+            response.put("message", "Scraping is in progress. Please wait.");
+            return ResponseEntity.status(202).body(response);
+        }
 
         Pageable pageable = PageRequest.of(page, 20);
         List<Clothing> clothingList = swipeStyleRepo.findAll(pageable).getContent();
-        List<ClothingDTO> clothingDTOs = clothingList.stream().map(ClothingMapper::toDTO).collect(Collectors.toList());
+        List<ClothingDTO> clothingDTOs = clothingList.stream()
+                .map(ClothingMapper::toDTO)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(clothingDTOs);
     }

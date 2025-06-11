@@ -25,14 +25,11 @@ public class HMScrapingService implements SwipeStyleService {
         return applicationContext.getBean(WebDriver.class);
     }
 
-    private String gender;
-
     @Override
     public List<ClothingDTO> scrapeProducts(String baseCategoryUrl, int maxPages,String gender) {
         WebDriver driver = getWebDriver();
         List<ClothingDTO> products = new ArrayList<>();
         Set<String> seenProductIds = new HashSet<>();
-        this.gender = gender;
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
             handleCookieConsent(driver, wait);
@@ -56,7 +53,7 @@ public class HMScrapingService implements SwipeStyleService {
 
                 for (WebElement productElement : productElements) {
                     try {
-                        ClothingDTO product = extractProductData(productElement);
+                        ClothingDTO product = extractProductData(productElement,gender);
                         if (product != null && !seenProductIds.contains(product.getProductId())) {
                             products.add(product);
                             seenProductIds.add(product.getProductId());
@@ -78,7 +75,7 @@ public class HMScrapingService implements SwipeStyleService {
         return products;
     }
 
-    private ClothingDTO extractProductData(WebElement productElement) {
+    private ClothingDTO extractProductData(WebElement productElement,String gender) {
         try {
             String productId = productElement.getAttribute("data-articlecode");
             if (productId == null || productId.isEmpty()) return null;
