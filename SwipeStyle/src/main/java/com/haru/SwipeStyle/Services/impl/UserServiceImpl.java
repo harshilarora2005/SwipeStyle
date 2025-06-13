@@ -1,12 +1,16 @@
 package com.haru.SwipeStyle.Services.impl;
 import com.haru.SwipeStyle.DTOs.UserDTO;
 import com.haru.SwipeStyle.DTOs.UserLoginDTO;
+import com.haru.SwipeStyle.DTOs.UserRegistrationDTO;
 import com.haru.SwipeStyle.Entities.User;
 import com.haru.SwipeStyle.Repository.UserRepo;
 import com.haru.SwipeStyle.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 //package com.haru.SwipeStyle.Services.impl;
 //
@@ -86,7 +90,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public User registerUser(UserDTO dto) {
+    public User registerUser(UserRegistrationDTO dto) {
         if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
@@ -107,6 +111,12 @@ public class UserServiceImpl implements UserService {
                 .filter(user -> passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
+
+    @Override
+    public void updateUserGender(String username, String gender) {
+        userRepo.updateUserGender(username, gender);
+    }
+
     @Override
     public boolean existsByUsername(String username) {
         return userRepo.existsByUsername(username);

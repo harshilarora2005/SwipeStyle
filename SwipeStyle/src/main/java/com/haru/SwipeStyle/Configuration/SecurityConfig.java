@@ -22,7 +22,9 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
-                .oauth2Login(oauth2 -> oauth2.disable())
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/login/success", true)
+                )
                 .logout(logout -> logout.logoutSuccessUrl("/"));
 
         return http.build();

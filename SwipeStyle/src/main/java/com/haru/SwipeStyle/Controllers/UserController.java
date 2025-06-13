@@ -2,6 +2,7 @@ package com.haru.SwipeStyle.Controllers;
 
 import com.haru.SwipeStyle.DTOs.UserLoginDTO;
 import com.haru.SwipeStyle.DTOs.UserDTO;
+import com.haru.SwipeStyle.DTOs.UserRegistrationDTO;
 import com.haru.SwipeStyle.Entities.User;
 import com.haru.SwipeStyle.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> register(@RequestBody UserRegistrationDTO userDTO) {
         User user = userService.registerUser(userDTO);
         return ResponseEntity.ok(user);
     }

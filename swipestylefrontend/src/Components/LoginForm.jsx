@@ -1,9 +1,9 @@
-// LoginForm.jsx
 import React, { useState } from 'react';
-import { Eye, EyeOff, User, Mail, Lock, Sparkles, Heart } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Lock, Sparkles, Heart} from 'lucide-react';
 import * as Yup from 'yup';
 import { LoginUser, RegisterUser } from '../services/UserService';
-
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa"
 const LoginForm = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
@@ -349,7 +349,29 @@ const LoginForm = () => {
                         </p>
                     </div>
                 </div>
-
+                <div className="flex items-center my-4">
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="mx-4 text-gray-400 text-sm">or</span>
+                    <div className="flex-grow border-t border-gray-300"></div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                    <button
+                        type="button"
+                        onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+                        className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 py-2 rounded-xl shadow-sm hover:bg-gray-50 transition-all"
+                    >
+                        <FcGoogle className="w-5 h-5" />
+                        Continue with Google
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/facebook'}
+                        className="w-full flex items-center justify-center gap-3 bg-blue-500 text-white border border-gray-800 py-2 rounded-xl shadow-sm hover:bg-gray-900 transition-all"
+                    >
+                        <FaFacebook className="w-5 h-5" />
+                        Continue with Facebook
+                    </button>
+                </div>
                 <div className="text-center mt-6 text-gray-500 text-sm">
                     Made with <Heart className="inline w-4 h-4 text-pink-500" /> for fashion lovers
                 </div>
