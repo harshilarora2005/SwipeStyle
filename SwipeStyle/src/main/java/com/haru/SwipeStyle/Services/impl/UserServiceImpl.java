@@ -1,11 +1,11 @@
 package com.haru.SwipeStyle.Services.impl;
 import com.haru.SwipeStyle.DTOs.UserDTO;
+import com.haru.SwipeStyle.DTOs.UserLoginDTO;
 import com.haru.SwipeStyle.Entities.User;
-import com.haru.SwipeStyle.Mapper.ClothingMapper;
-import com.haru.SwipeStyle.Mapper.UserMapper;
 import com.haru.SwipeStyle.Repository.UserRepo;
+import com.haru.SwipeStyle.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 //package com.haru.SwipeStyle.Services.impl;
@@ -78,44 +78,41 @@ import org.springframework.stereotype.Service;
 //}
 
 @Service
-public class UserService {
+public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepo userRepo;
 
-    public User findOrCreateUser(String auth0Id, String email, String username, String profilePictureUrl) {
-        return userRepo.findByAuth0Id(auth0Id)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setAuth0Id(auth0Id);
-                    newUser.setEmail(email);
-                    newUser.setUsername(username != null ? username : email.split("@")[0]);
-                    newUser.setProfilePictureUrl(profilePictureUrl);
-                    newUser.setIsActive(true);
-                    return userRepo.save(newUser);
-                });
-    }
-    public User findUserByAuth0Id(String auth0Id) {
-        return userRepo.findByAuth0Id(auth0Id).orElseThrow(() -> new UsernameNotFoundException("user not found"));
-    }
-    public User updateUser(String auth0Id, UserDTO userDTO) {
-        User user = userRepo.findByAuth0Id(auth0Id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-        if (userDTO.getUsername() != null) {
-            user.setUsername(userDTO.getUsername());
-        }
-        if (userDTO.getGender() != null) {
-            user.setGender(userDTO.getGender());
+    @Override
+    public User registerUser(UserDTO dto) {
+        if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
+            throw new RuntimeException("User already exists");
         }
 
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setUsername(dto.getUsername());
+        user.setGender(dto.getGender());
+        user.setRole(com.haru.SwipeStyle.Entities.Role.USER);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepo.save(user);
     }
 
-    public void deleteUser(String auth0Id) {
-        User user = userRepo.findByAuth0Id(auth0Id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        userRepo.delete(user);
+    @Override
+    public User loginUser(UserLoginDTO loginDTO) {
+        String identifier = loginDTO.getUsernameOrEmail();
+        return userRepo.findByUsernameOrEmail(identifier, identifier)
+                .filter(user -> passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
+                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
-
-
+    @Override
+    public boolean existsByUsername(String username) {
+        return userRepo.existsByUsername(username);
+    }
+    @Override
+    public boolean userExistsByEmail(String email) {
+        return userRepo.findByEmail(email).isPresent();
+    }
 }

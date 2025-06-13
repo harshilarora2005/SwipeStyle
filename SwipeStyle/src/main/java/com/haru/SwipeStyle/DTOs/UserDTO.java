@@ -1,18 +1,15 @@
 package com.haru.SwipeStyle.DTOs;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.haru.SwipeStyle.Entities.Role;
+import lombok.Data;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+import java.util.EnumSet;
+
+@Data
 public class UserDTO {
-    private Long id;
-    private String username;
     private String email;
+    private String username;
+    private String password;
     private String gender;
-    private String role;
+    private String profilePictureUrl;
 }
