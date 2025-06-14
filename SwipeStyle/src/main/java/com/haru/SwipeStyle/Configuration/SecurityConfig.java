@@ -17,15 +17,27 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/users/register", "/api/users/login", "/oauth2/**").permitAll()
+                        .requestMatchers(
+                                "/api/users/register",
+                                "/api/users/login",
+                                "/api/users/exists/**",
+                                "/oauth2/**",
+                                "/login/**",
+                                "/api/swipe-style/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/login/success", true)
+                        .defaultSuccessUrl("http://localhost:5173/account", true)
+                        .failureUrl("http://localhost:5173/login?error=true")
                 )
-                .logout(logout -> logout.logoutSuccessUrl("/"));
+                .logout(logout -> logout
+                        .logoutSuccessUrl("http://localhost:5173")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
+                );
 
         return http.build();
     }

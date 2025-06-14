@@ -29,7 +29,6 @@ public class OAuthController {
             newUser.setUsername(name);
             newUser.setProfilePictureUrl(picture);
             newUser.setGender("unisex");
-
             userService.registerUser(newUser);
         }
         return ResponseEntity.ok("OAuth login successful: " + oAuthUser.getAttributes());

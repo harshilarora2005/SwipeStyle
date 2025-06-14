@@ -11,16 +11,15 @@ public class ClothingMapper {
             return null;
         }
 
-        ClothingDTO dto = new ClothingDTO();
-        dto.setProductId(clothing.getProductId());
-        dto.setName(clothing.getName());
-        dto.setGender(clothing.getGender());
-        dto.setPrice(clothing.getPrice());
-        dto.setImageUrl(clothing.getImageUrls());
-        dto.setProductUrl(clothing.getProductUrl());
-        dto.setAltText(clothing.getAltText());
-
-        return dto;
+        return new ClothingDTO(
+                clothing.getProductId(),
+                clothing.getName(),
+                clothing.getGender(),
+                clothing.getPrice(),
+                clothing.getImageUrls(),
+                clothing.getProductUrl(),
+                clothing.getAltText()
+        );
     }
 
     public static Clothing toEntity(ClothingDTO dto) {

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 public interface SwipeStyleRepo extends JpaRepository<Clothing,Long>, JpaSpecificationExecutor<Clothing> {
@@ -17,6 +18,6 @@ public interface SwipeStyleRepo extends JpaRepository<Clothing,Long>, JpaSpecifi
     @Query("SELECT c.productId FROM Clothing c WHERE c.productId IN :productIds")
     Set<String> findExistingProductIds(@Param("productIds") Set<String> productIds);
 
-    @Query("SELECT new com.haru.SwipeStyle.DTOs.ClothingDTO(c.productId, c.name, c.price, c.gender, c.imageUrls, c.productUrl, c.altText) FROM Clothing c WHERE c.gender = :gender")
-    Set<ClothingDTO> getProductIdsByGender(@Param("gender") String gender);
+    @Query("SELECT new com.haru.SwipeStyle.DTOs.ClothingDTO(c.productId, c.name, c.gender ,c.price, c.imageUrls, c.productUrl, c.altText) FROM Clothing c WHERE c.gender = :gender")
+    List<ClothingDTO> getProductIdsByGender(@Param("gender") String gender);
 }

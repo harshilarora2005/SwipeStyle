@@ -4,7 +4,9 @@ import * as Yup from 'yup';
 import { LoginUser, RegisterUser } from '../services/UserService';
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa"
+import { useNavigate } from 'react-router';
 const LoginForm = () => {
+    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -107,7 +109,9 @@ const LoginForm = () => {
             const response = await (isLogin ? LoginUser(payload) : RegisterUser(payload));
 
             if (response.status === 200 || response.status === 201) {
+                navigate("/");
                 alert(isLogin ? 'Login successful!' : 'Registration successful!');
+
                 setFormData({
                     usernameOrEmail: '',
                     email: '',

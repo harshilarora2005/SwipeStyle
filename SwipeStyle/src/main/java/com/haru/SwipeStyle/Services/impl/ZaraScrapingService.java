@@ -23,10 +23,11 @@ public class ZaraScrapingService implements SwipeStyleService {
     }
 
     @Override
-    public List<ClothingDTO> scrapeProducts(String categoryUrl, int maxScrolls,String gender) {
+    public List<ClothingDTO> scrapeProducts(String categoryUrl, int maxScrolls, String gender) {
         WebDriver driver = getWebDriver();
         List<ClothingDTO> products = new ArrayList<>();
         Set<String> seenProductIds = new HashSet<>();
+        Map<String, ClothingDTO> productMap = new HashMap<>();
 
         try {
             driver.get(categoryUrl);
@@ -37,15 +38,20 @@ public class ZaraScrapingService implements SwipeStyleService {
                     By.cssSelector("li.product-grid-product")
             ));
 
-            WebElement button = driver.findElement(
-                    By.cssSelector("button[aria-label='Switch to zoom 2']")
-            );
-            button.click();
+            try {
+                WebElement button = wait.until(ExpectedConditions.elementToBeClickable(
+                        By.cssSelector("button[aria-label='Switch to zoom 2']")
+                ));
+                button.click();
+                System.out.println("Button found and clicked");
+            } catch (NoSuchElementException e) {
+                System.out.println("Button not found");
+            }
 
             handleCookieConsent(driver, wait);
 
             for (int scroll = 0; scroll < maxScrolls; scroll++) {
-
+                int productsAddedThisScroll = 0;
                 List<WebElement> productElements = driver.findElements(
                         By.cssSelector("li.product-grid-product")
                 );
@@ -54,11 +60,32 @@ public class ZaraScrapingService implements SwipeStyleService {
 
 
                 for (WebElement productElement : productElements) {
+
                     try {
-                        ClothingDTO product = extractProductData(productElement,gender);
-                        if (product != null && !seenProductIds.contains(product.getProductId())) {
-                            products.add(product);
-                            seenProductIds.add(product.getProductId());
+//                        if (productsAddedThisScroll >= 8) {
+//                            break;
+//                        }
+                        ClothingDTO product = extractProductData(productElement, gender);
+                        if (product == null || product.getProductId() == null) {
+                            continue;
+                        }
+                        ClothingDTO existingProduct = productMap.get(product.getProductId());
+                        if (existingProduct == null){
+                            // New product - add if image is valid
+                            if (isValidImage(product.getImageUrl())) {
+                                products.add(product);
+                                productMap.put(product.getProductId(), product);
+                                productsAddedThisScroll++;
+                            }
+                        } else {
+                            // Existing product - update if we now have a better image
+                            if (isValidImage(product.getImageUrl()) &&
+                                    !isValidImage(existingProduct.getImageUrl())) {
+                                // Update the existing product with better image
+                                existingProduct.setImageUrl(product.getImageUrl());
+                                existingProduct.setProductUrl(product.getProductUrl());
+                                // You might want to update other fields here as well
+                            }
                         }
                     } catch (Exception e) {
                         System.err.println("Error extracting product data: " + e.getMessage());
@@ -67,7 +94,7 @@ public class ZaraScrapingService implements SwipeStyleService {
 
                 if (scroll < maxScrolls - 1) {
                     scrollToLoadMore(driver);
-                    Thread.sleep(500);
+                    Thread.sleep(5000);
                 }
             }
 
@@ -79,7 +106,12 @@ public class ZaraScrapingService implements SwipeStyleService {
 
         return products;
     }
-
+    private boolean isValidImage(String imageUrl) {
+        return imageUrl != null &&
+                !imageUrl.isEmpty() &&
+                !imageUrl.contains("transparent") &&
+                !imageUrl.contains("placeholder");
+    }
     private ClothingDTO extractProductData(WebElement productElement, String gender) {
         try {
             String productId = extractProductId(productElement);
@@ -97,6 +129,7 @@ public class ZaraScrapingService implements SwipeStyleService {
         }
         return null;
     }
+
     private String extractProductId(WebElement productElement) {
         return productElement.getAttribute("data-productid");
     }
@@ -104,6 +137,7 @@ public class ZaraScrapingService implements SwipeStyleService {
     private String extractImageUrl(WebElement productElement) {
         try {
             WebElement imageElement = productElement.findElement(By.cssSelector("img.media-image__image"));
+
             String src = imageElement.getAttribute("src");
             return (src == null || src.isEmpty()) ? imageElement.getAttribute("data-src") : src;
         } catch (NoSuchElementException e) {
@@ -147,33 +181,16 @@ public class ZaraScrapingService implements SwipeStyleService {
         }
     }
 
-//    private List<String> getProductDetailsFromPage(String productUrl) {
-//        WebDriver detailDriver = getWebDriver();
-//        WebDriverWait detailWait = new WebDriverWait(detailDriver, Duration.ofSeconds(1));
-//        List<String> details = new ArrayList<>();
-//        try {
-//            detailDriver.get(productUrl);
-//            detailWait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("body")));
-//            Thread.sleep(500);
-//            String name = getProductName(detailDriver);
-//            String price = getProductPrice(detailDriver);
-//            details.add(name);
-//            details.add(price);
-//        } catch (Exception e) {
-//            details.add("Name not found");
-//            details.add("Price not found");
-//        } finally {
-//            detailDriver.quit();
-//        }
-//        return details;
-//    }
-
     private void scrollToLoadMore(WebDriver driver) {
         JavascriptExecutor js = (JavascriptExecutor) driver;
-
-        js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-
-        js.executeScript("window.scrollBy(0, window.innerHeight);");
+        for (int i = 0; i < 3; i++) {
+            js.executeScript("window.scrollBy(0, 500);");
+            try {
+                Thread.sleep(300); // Short pause to allow loading
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     private void handleCookieConsent(WebDriver driver, WebDriverWait wait) {
@@ -203,28 +220,4 @@ public class ZaraScrapingService implements SwipeStyleService {
             //
         }
     }
-//    private String getProductPrice(WebDriver element) {
-//        String price = "";
-//        try{
-//            WebElement priceElement = element.findElement(
-//                    By.cssSelector(".price-current__amount .money-amount__main")
-//            );
-//            price = priceElement.getText().trim();
-//        }catch (NoSuchElementException e){
-//            price = "No price found";
-//        }
-//        return price;
-//    }
-//    private String getProductName(WebDriver element) {
-//        String productName = "";
-//        try{
-//            WebElement productNameElement = element.findElement(
-//                    By.cssSelector(".product-detail-info__header-name")
-//            );
-//            productName = productNameElement.getText().trim();
-//        }catch (NoSuchElementException e){
-//            productName = "Unknown Product";
-//        }
-//        return productName;
-//    }
 }

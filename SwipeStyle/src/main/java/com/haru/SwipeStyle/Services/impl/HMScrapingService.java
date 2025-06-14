@@ -80,13 +80,13 @@ public class HMScrapingService implements SwipeStyleService {
             String productId = productElement.getAttribute("data-articlecode");
             if (productId == null || productId.isEmpty()) return null;
 
-            WebElement linkElement = productElement.findElement(By.cssSelector("a.bf089e"));
+            WebElement linkElement = productElement.findElement(By.cssSelector("a.d8ba09"));
             String productUrl = linkElement.getAttribute("href");
             String name = linkElement.getAttribute("title");
 
             String priceText = "";
             try {
-                WebElement priceElement = productElement.findElement(By.cssSelector("p.ef3c25 span.e210fc"));
+                WebElement priceElement = productElement.findElement(By.cssSelector("de46d3"));
                 priceText = priceElement.getText().replaceAll("[^0-9.]", "");
             } catch (NoSuchElementException e) {
                 priceText = "0";

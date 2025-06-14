@@ -7,3 +7,6 @@ export const RegisterUser= (UserDTO) => {
 export const LoginUser = (LoginUserDTO) => {
     return axios.post(REST_API_BASE_URL + "/login", LoginUserDTO);
 }
+export const GetMyUser = () => {
+    return axios.get(REST_API_BASE_URL + "/me", { withCredentials: true })
+}

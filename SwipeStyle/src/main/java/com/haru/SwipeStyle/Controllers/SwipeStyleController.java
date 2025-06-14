@@ -15,24 +15,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 @RestController
-@RequestMapping("/api/swipe-style/")
+@RequestMapping("/api/swipe-style")
 public class SwipeStyleController {
 
     @Autowired
     private SwipeStyleRepo swipeStyleRepo;
 
     @Autowired
-    private UrlProvider urlProvider;
-
-    @Autowired
     private ScraperCountdown scraperCountdown;
 
-    @GetMapping("products")
+    @GetMapping("/products")
     public ResponseEntity<?> getProducts(
             @RequestParam(defaultValue = "0") int page) {
 
@@ -52,13 +48,37 @@ public class SwipeStyleController {
         return ResponseEntity.ok(clothingDTOs);
     }
 
-    @GetMapping("/getProducts/{gender}")
+    @GetMapping("/products/{gender}")
     public ResponseEntity<?> getProductsByGender(@PathVariable String gender) {
         try {
-            Set<ClothingDTO> products = swipeStyleRepo.getProductIdsByGender(gender);
-
+            if (!scraperCountdown.isCompleted()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("status", "loading");
+                return ResponseEntity.status(202).body(response);
+            }
+            System.out.println("Fetching products for gender: " + gender);
+            List<ClothingDTO> products;
+            if(gender.equals("UNISEX")) {
+                List<Clothing> fetchedProducts = swipeStyleRepo.findAll();
+                System.out.println("Total products in database: " + fetchedProducts.size());
+                products = fetchedProducts.stream()
+                        .map(ClothingMapper::toDTO)
+                        .toList();
+            }else{
+                products = swipeStyleRepo.getProductIdsByGender(gender);
+            }
+            System.out.println("Products found: " + products.size());
             if (products.isEmpty()) {
                 return ResponseEntity.noContent().build();
+            }
+            if (!products.isEmpty()) {
+                ClothingDTO firstProduct = products.get(0);
+                System.out.println("First product details:");
+                System.out.println("ProductId: " + firstProduct.getProductId());
+                System.out.println("Name: " + firstProduct.getName());
+                System.out.println("Price: " + firstProduct.getPrice());
+                System.out.println("Gender: " + firstProduct.getGender());
+                System.out.println("ImageUrl: " + firstProduct.getImageUrl());
             }
             return ResponseEntity.ok(products);
         } catch (Exception e) {
