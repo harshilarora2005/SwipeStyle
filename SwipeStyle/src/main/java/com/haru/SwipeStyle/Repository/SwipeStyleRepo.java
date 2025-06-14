@@ -1,5 +1,6 @@
 package com.haru.SwipeStyle.Repository;
 
+import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -15,4 +16,7 @@ public interface SwipeStyleRepo extends JpaRepository<Clothing,Long>, JpaSpecifi
 
     @Query("SELECT c.productId FROM Clothing c WHERE c.productId IN :productIds")
     Set<String> findExistingProductIds(@Param("productIds") Set<String> productIds);
+
+    @Query("SELECT new com.haru.SwipeStyle.DTOs.ClothingDTO(c.productId, c.name, c.price, c.gender, c.imageUrls, c.productUrl, c.altText) FROM Clothing c WHERE c.gender = :gender")
+    Set<ClothingDTO> getProductIdsByGender(@Param("gender") String gender);
 }

@@ -9,11 +9,13 @@ import com.haru.SwipeStyle.Services.UrlProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CrossOrigin("*")
@@ -23,7 +25,6 @@ public class SwipeStyleController {
 
     @Autowired
     private SwipeStyleRepo swipeStyleRepo;
-
 
     @Autowired
     private UrlProvider urlProvider;
@@ -49,6 +50,21 @@ public class SwipeStyleController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(clothingDTOs);
+    }
+
+    @GetMapping("/getProducts/{gender}")
+    public ResponseEntity<?> getProductsByGender(@PathVariable String gender) {
+        try {
+            Set<ClothingDTO> products = swipeStyleRepo.getProductIdsByGender(gender);
+
+            if (products.isEmpty()) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching products: " + e.getMessage());
+        }
     }
 
 }
