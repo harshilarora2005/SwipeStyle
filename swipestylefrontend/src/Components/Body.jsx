@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 
-import {motion} from 'framer-motion';
 import { useContext, useEffect, useState } from 'react';
 import { getClothing } from '../services/ClothingService';
 import UserContext from './utils/UserContext';
@@ -11,7 +10,9 @@ const Body = () => {
   const [loading, setLoading] = useState(true);
   const [scrapingInProgress, setScrapingInProgress] = useState(false);
   const {userGender, setUserGender} = useContext(UserContext);
-  
+  const [visibleCards, setVisibleCards] = useState([]);
+  const [startIndex, setStartIndex] = useState(0);
+  const BATCH_SIZE = 5;
   useEffect(() => {
     let intervalId;
     
@@ -48,8 +49,14 @@ const Body = () => {
 
     return () => clearInterval(intervalId);
   }, [userGender]);
-  
-  if (loading || scrapingInProgress) {
+  useEffect(()=>{
+    if (visibleCards.length <= 2 && startIndex < clothingData.length) {
+      const nextBatch = clothingData.slice(startIndex, startIndex + BATCH_SIZE);
+      setVisibleCards(prev => [...prev, ...nextBatch]);
+      setStartIndex(prev => prev + BATCH_SIZE);
+    }
+  },[visibleCards.length,startIndex,clothingData]);
+  if (loading || scrapingInProgress || visibleCards.length == 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen">
         <Loading/>
@@ -60,7 +67,7 @@ const Body = () => {
     );
   }
   
-  if (clothingData.length === 0) {
+  if (clothingData.length === 0){
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -70,10 +77,11 @@ const Body = () => {
       </div>
     );
   }
+  console.log(visibleCards);
   return (
     <div className="grid min-h-screen place-items-center">
-      {clothingData.map((item,index)=>{
-        return <Cards key={item.productId || index} clothingData={item}/>
+      {visibleCards.map((item,index)=>{
+        return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards}/>
       })}
     </div>
   );
