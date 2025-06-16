@@ -52,7 +52,7 @@ const Body = () => {
   useEffect(()=>{
     if (visibleCards.length <= 2 && startIndex < clothingData.length) {
       const nextBatch = clothingData.slice(startIndex, startIndex + BATCH_SIZE);
-      setVisibleCards(prev => [...prev, ...nextBatch]);
+      setVisibleCards(prev => [...nextBatch,...prev]);
       setStartIndex(prev => prev + BATCH_SIZE);
     }
   },[visibleCards.length,startIndex,clothingData]);
@@ -77,11 +77,10 @@ const Body = () => {
       </div>
     );
   }
-  console.log(visibleCards);
   return (
     <div className="grid min-h-screen place-items-center">
       {visibleCards.map((item,index)=>{
-        return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards}/>
+        return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards} index={index}/>
       })}
     </div>
   );

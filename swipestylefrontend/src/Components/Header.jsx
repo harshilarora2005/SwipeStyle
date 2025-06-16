@@ -2,6 +2,7 @@ import { Sparkles, User } from 'lucide-react';
 import { useNavigate, Link } from 'react-router'; 
 import { useContext } from 'react';
 import UserContext from './utils/UserContext';
+import { LogoutUser } from '../services/UserService';
 const Header = () => {
     const navigate = useNavigate();
     const { isLoggedIn, setIsLoggedIn, userName, setUserName, userProfile, setUserProfile } = useContext(UserContext);
@@ -11,7 +12,20 @@ const Header = () => {
         { name: 'Collections' },
         { name: 'Account' }
     ];
-
+    const handleLogout = async() => {
+        try{
+            LogoutUser();
+            localStorage.removeItem('userToken');
+            sessionStorage.clear();
+            setIsLoggedIn(false);
+            setUserName("Guest");
+            setUserProfile("https://static.vecteezy.com/system/resources/thumbnails/020/765/399/small_2x/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg");
+        }
+        catch (error) {
+            console.error('Logout error:', error);
+            alert('Logout failed. Please try again.');
+        }
+    }
     const handleLoginClick = () => {
         if (isLoggedIn) {
             setIsLoggedIn(false);
@@ -54,13 +68,20 @@ const Header = () => {
                         <span className="text-sm sm:text-base font-medium">
                             Hi, <span className="text-[#7289da] font-semibold">{userName}</span>
                         </span>
-
+                        {isLoggedIn? <button
+                            onClick={handleLogout}
+                            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all flex items-center"
+                        >
+                            Logout
+                        </button>
+                        :
                         <button
                             onClick={handleLoginClick}
                             className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition-all flex items-center"
                         >
-                            {isLoggedIn ? 'Logout' : 'Login'}
-                        </button>
+                            Login
+                        </button>}
+                    
                     </div>
 
                 </div>

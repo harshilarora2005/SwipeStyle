@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, User, Mail, Lock, Sparkles, Heart} from 'lucide-react';
 import * as Yup from 'yup';
-import { LoginUser, RegisterUser } from '../services/UserService';
+import { LoginUser, RegisterUser, LogoutUser } from '../services/UserService';
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa"
 import { useNavigate } from 'react-router';
@@ -109,7 +109,7 @@ const LoginForm = () => {
             const response = await (isLogin ? LoginUser(payload) : RegisterUser(payload));
 
             if (response.status === 200 || response.status === 201) {
-                navigate("/");
+                navigate("/account");
                 alert(isLogin ? 'Login successful!' : 'Registration successful!');
 
                 setFormData({

@@ -1,5 +1,6 @@
 package com.haru.SwipeStyle.Configuration;
 
+import com.haru.SwipeStyle.Services.CustomUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,14 +21,18 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/users/register",
                                 "/api/users/login",
+                                "/api/users/logout",
                                 "/api/users/exists/**",
+                                "/api/users/me",
                                 "/oauth2/**",
                                 "/login/**",
-                                "/api/swipe-style/**"
+                                "/api/swipe-style/**",
+                                "/logout/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(basic -> basic.disable())
+                .formLogin(form -> form.disable())
                 .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl("http://localhost:5173/account", true)
                         .failureUrl("http://localhost:5173/login?error=true")
