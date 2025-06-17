@@ -1,10 +1,10 @@
 package com.haru.SwipeStyle.DTOs;
 
-import com.haru.SwipeStyle.Entities.Role;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.EnumSet;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class UserDTO {
     private String email;
@@ -12,4 +12,5 @@ public class UserDTO {
     private String password;
     private String gender;
     private String profilePictureUrl;
+    private String authType;
 }

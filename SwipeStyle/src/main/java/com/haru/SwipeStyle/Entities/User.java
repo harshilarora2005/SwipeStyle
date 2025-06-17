@@ -56,6 +56,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "auth_type")
+    private String authType = "CUSTOM";
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<UserClothing> savedClothingItems = new ArrayList<>();
 

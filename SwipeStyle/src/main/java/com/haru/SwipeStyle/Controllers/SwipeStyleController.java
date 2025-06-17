@@ -5,7 +5,7 @@ import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
 import com.haru.SwipeStyle.Repository.SwipeStyleRepo;
-import com.haru.SwipeStyle.Services.UrlProvider;
+import com.haru.SwipeStyle.Services.ClothingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,11 +23,10 @@ import java.util.stream.Collectors;
 public class SwipeStyleController {
 
     @Autowired
-    private SwipeStyleRepo swipeStyleRepo;
-
-    @Autowired
     private ScraperCountdown scraperCountdown;
 
+    @Autowired
+    private ClothingService clothingService;
     @GetMapping("/products")
     public ResponseEntity<?> getProducts(
             @RequestParam(defaultValue = "0") int page) {
@@ -40,7 +39,7 @@ public class SwipeStyleController {
         }
 
         Pageable pageable = PageRequest.of(page, 20);
-        List<Clothing> clothingList = swipeStyleRepo.findAll(pageable).getContent();
+        List<Clothing> clothingList = clothingService.getAllClothingItemsList(pageable);
         List<ClothingDTO> clothingDTOs = clothingList.stream()
                 .map(ClothingMapper::toDTO)
                 .collect(Collectors.toList());
@@ -59,13 +58,10 @@ public class SwipeStyleController {
             System.out.println("Fetching products for gender: " + gender);
             List<ClothingDTO> products;
             if(gender.equals("UNISEX")) {
-                List<Clothing> fetchedProducts = swipeStyleRepo.findAll();
-                System.out.println("Total products in database: " + fetchedProducts.size());
-                products = fetchedProducts.stream()
-                        .map(ClothingMapper::toDTO)
-                        .toList();
+                products = clothingService.getAllProductsAsDTO();
+                System.out.println("Total products in database: " + products.size());
             }else{
-                products = swipeStyleRepo.getProductIdsByGender(gender);
+                products = clothingService.getProductsByGender(gender.toUpperCase());
             }
             System.out.println("Products found: " + products.size());
             if (products.isEmpty()) {

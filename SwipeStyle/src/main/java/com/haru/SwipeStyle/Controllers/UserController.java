@@ -77,7 +77,6 @@ public class UserController {
         UserDTO userDTO = new UserDTO();
         String authType = authentication.getClass().getSimpleName();
         System.out.println("Authentication type: " + authType);
-        // OAuth2 user
         if (authentication instanceof OAuth2AuthenticationToken oauthToken) {
             String email = oauthToken.getPrincipal().getAttribute("email");
             String name = oauthToken.getPrincipal().getAttribute("name");
@@ -86,6 +85,9 @@ public class UserController {
             userDTO.setUsername(name);
             userDTO.setProfilePictureUrl(picture);
             userDTO.setGender("UNISEX");
+            if(!userService.userExistsByEmail(email)) {
+                userService.saveUser(userDTO);
+            }
             return ResponseEntity.ok(userDTO);
         }
 
@@ -100,17 +102,10 @@ public class UserController {
                 }
             }
         }
-
-        // Log the authentication type for debugging
-        System.out.println("Authentication type: " + authType);
-        System.out.println("Principal type: " + principal.getClass().getSimpleName());
-
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unsupported authentication type");
     }
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response,Authentication authentication) {
-        // Clear security context
         SecurityContextHolder.clearContext();
 
         HttpSession session = request.getSession(false);
@@ -130,7 +125,6 @@ public class UserController {
             }
         }
         if (authentication instanceof OAuth2AuthenticationToken) {
-            // For example: Google logout
             String googleLogoutUrl = "https://accounts.google.com/Logout";
             return ResponseEntity.status(HttpStatus.OK).body(
                     Map.of("message", "Logged out from app", "oauthLogoutUrl", googleLogoutUrl)
@@ -139,8 +133,17 @@ public class UserController {
 
         return ResponseEntity.ok("Logged out successfully");
     }
-//    @PutMapping("/updateGender")
-//    public ResponseEntity<?> updateGender(@RequestBody UserDTO userDTO) {
-//
-//    }
+    @PutMapping("/updateGender")
+    public ResponseEntity<?> updateGender(@RequestBody UserDTO userDTO) {
+        System.out.println(userDTO);
+        System.out.println("Received request to update gender for user: " + userDTO.getUsername() + " to: " + userDTO.getGender());
+        try {
+            int rowsAffected = userService.updateUserGender(userDTO.getUsername(), userDTO.getGender());
+            System.out.println("Rows affected: " + rowsAffected);
+            return ResponseEntity.ok("Updated successfully");
+        } catch (Exception e) {
+            System.err.println("Error updating gender: " + e.getMessage());
+            return ResponseEntity.status(500).body("Update failed: " + e.getMessage());
+        }
+    }
 }

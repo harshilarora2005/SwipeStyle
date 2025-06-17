@@ -27,7 +27,8 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/**",
                                 "/api/swipe-style/**",
-                                "/logout/**"
+                                "/logout/**",
+                                "/api/users/updateGender"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

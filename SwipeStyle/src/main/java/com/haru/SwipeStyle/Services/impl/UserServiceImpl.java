@@ -1,4 +1,5 @@
 package com.haru.SwipeStyle.Services.impl;
+import com.haru.SwipeStyle.DTOs.UserDTO;
 import com.haru.SwipeStyle.DTOs.UserLoginDTO;
 import com.haru.SwipeStyle.DTOs.UserRegistrationDTO;
 import com.haru.SwipeStyle.Entities.User;
@@ -16,6 +17,17 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Override
+    public User saveUser(UserDTO dto) {
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setUsername(dto.getUsername());
+        user.setGender(dto.getGender());
+        user.setRole(com.haru.SwipeStyle.Entities.Role.USER);
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setAuthType("OAUTH");
+        return userRepo.save(user);
+    }
     @Override
     public User registerUser(UserRegistrationDTO dto) {
         if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
@@ -40,8 +52,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserGender(String username, String gender) {
-        userRepo.updateUserGender(username, gender);
+    public int updateUserGender(String username, String gender) {
+        System.out.println("UserDTO: username=" + username+ ", gender=" + gender);
+        return userRepo.updateUserGender(username, gender);
     }
 
     @Override

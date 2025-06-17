@@ -1,8 +1,8 @@
-import { useEffect, useContext } from "react";
-import { User, Mail, Heart, Star, Grid3X3, Compass } from "lucide-react";
+import {useState, useEffect, useContext } from "react";
+import { User, Mail, Heart, Star, Grid3X3, Compass,Pencil,X } from "lucide-react";
 import UserContext from "./utils/UserContext";
 import { GetMyUser } from "../services/UserService";
-
+import { UpdateGender } from "../services/UserService";
 const Account = () => {
     const { 
         setUserName, 
@@ -17,7 +17,27 @@ const Account = () => {
         userProfile,
         userGender
     } = useContext(UserContext);
+    const [isGenderDialogOpen, setIsGenderDialogOpen] = useState(false);
+    const [selectedGender, setSelectedGender] = useState(userGender);
+    const handleGenderChange = async() => {
+        if(selectedGender != userGender){
+            setUserGender(selectedGender);
+            setIsGenderDialogOpen(false);
+            const payload = {
+                username : userName,
+                gender : selectedGender
 
+            }
+            console.log(payload);
+            await UpdateGender(payload);
+        }
+    };
+
+    const openGenderDialog = () => {
+        setSelectedGender(userGender);
+        setIsGenderDialogOpen(true);
+    };
+    const genderOptions = ['Male', 'Female', 'Unisex'];
     useEffect(() => {
         GetMyUser()
             .then(res => {
@@ -107,9 +127,15 @@ const Account = () => {
                                     <div className="flex items-center gap-3">
                                         <Heart className="w-5 h-5 text-purple-500" />
                                         <span className="text-gray-600">Clothing Preference:</span>
-                                        <span className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                            {userGender}
-                                        </span>
+                                        <button
+                                            onClick={openGenderDialog}
+                                            className="relative inline-flex items-center bg-gradient-to-r from-pink-500 to-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium group cursor-pointer hover:from-pink-600 hover:to-purple-600 transition-all duration-200"
+                                        >
+                                            {userGender || 'Select Preference'}
+                                            <span className="ml-2 group-hover:scale-110 transition-transform duration-200">
+                                                <Pencil className="w-4 h-4" />
+                                            </span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -117,6 +143,61 @@ const Account = () => {
                     </div>
                 </div>
             </div>
+            {isGenderDialogOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+                        <div className="bg-gradient-to-r from-pink-500 to-purple-500 px-6 py-4 text-white relative">
+                            <h3 className="text-xl font-bold">Choose Clothing Preference</h3>
+                            <button
+                                onClick={() => setIsGenderDialogOpen(false)}
+                                className="absolute right-4 top-4 hover:bg-white/20 rounded-full p-1 transition-colors duration-200"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6">
+                            <p className="text-gray-600 mb-6">Select your preferred clothing category to get personalized recommendations.</p>
+                            <div className="space-y-3 mb-6">
+                                {genderOptions.map((option) => (
+                                    <label
+                                        key={option}
+                                        className="flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:bg-gray-50"
+                                        style={{
+                                            borderColor: selectedGender === option ? '#ec4899' : '#e5e7eb',
+                                            backgroundColor: selectedGender === option ? '#fdf2f8' : 'transparent'
+                                        }}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value={option}
+                                            checked={selectedGender.toLowerCase() == option.toLowerCase()}
+                                            onChange={(e) => setSelectedGender(e.target.value)}
+                                            className="w-4 h-4 text-pink-500"
+                                        />
+                                        <span className="ml-3 text-gray-800 font-medium">{option}</span>
+                                    </label>
+                                ))}
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setIsGenderDialogOpen(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleGenderChange}
+                                    disabled={!selectedGender}
+                                    className="flex-1 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl hover:from-pink-600 hover:to-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

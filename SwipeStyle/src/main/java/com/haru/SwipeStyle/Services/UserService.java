@@ -9,8 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService {
     User registerUser(UserRegistrationDTO userDTO);
     User loginUser(UserLoginDTO loginDTO);
-
-    void updateUserGender(String username, String gender);
+    User saveUser(UserDTO userDTO);
+    int updateUserGender(String username, String gender);
     boolean existsByUsername(String username);
     User findByUsername(String username);
     User findByEmail(String email);

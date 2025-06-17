@@ -67,6 +67,10 @@ public class UrlProvider {
                 String jobName = generateJobName(trimmedUrl);
                 jobScheduler.enqueue(() -> runJobForUrl(trimmedUrl,jobName));
             });
+        }else if(lastRun.toLocalDate().equals(LocalDate.now())) {
+            for(int i = 0; i < 4; i++) {
+                scraperCountdown.markScraperDone();
+            }
         }
     }
 
