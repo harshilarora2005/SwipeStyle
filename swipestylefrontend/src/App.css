@@ -1,2 +1,10 @@
 @import "tailwindcss";
 
+@keyframes pulseGreen {
+    0%, 100% { background-color: rgba(34, 197, 94, 0.3); }
+    50% { background-color: rgba(34, 197, 94, 0.6); }
+}
+
+.pulse-green-bg {
+    animation: pulseGreen 0.8s ease-in-out infinite;
+}

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.*;
 
-@Service("")
+@Service
 public class HMScrapingService implements SwipeStyleService {
 
     @Autowired
@@ -36,8 +36,56 @@ public class HMScrapingService implements SwipeStyleService {
 
             for (int page = 1; page <= maxPages; page++) {
                 String pageUrl = baseCategoryUrl;
-                // Append ?page= or &page= depending on URL
                 if (baseCategoryUrl.contains("?")) {
+                    pageUrl += "&page=" + page;
+                } else {
+                    pageUrl += "?page=" + page;
+                }
+
+                driver.get(pageUrl);
+
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("li > div[data-hydration-on-demand]")));
+
+                List<WebElement> productElements = driver.findElements(By.cssSelector("li > div[data-hydration-on-demand] article"));
+
+                System.out.println("Page " + page + " found " + productElements.size() + " products");
+
+                for (WebElement productElement : productElements) {
+                    try {
+                        ClothingDTO product = extractProductData(productElement,gender);
+                        if (product != null && !seenProductIds.contains(product.getProductId())) {
+                            products.add(product);
+                            seenProductIds.add(product.getProductId());
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error extracting product data on page " + page + ": " + e.getMessage());
+                    }
+                }
+
+                Thread.sleep(500);
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error scraping H&M products: " + e.getMessage(), e);
+        } finally {
+            driver.quit();
+        }
+
+        return products;
+    }
+
+    @Override
+    public List<ClothingDTO> scrapeProductsWithRange(String url, int startPage, int endPage, String gender) {
+        WebDriver driver = getWebDriver();
+        List<ClothingDTO> products = new ArrayList<>();
+        Set<String> seenProductIds = new HashSet<>();
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            handleCookieConsent(driver, wait);
+
+            for (int page = startPage; page <= endPage; page++) {
+                String pageUrl = url;
+                if (url.contains("?")) {
                     pageUrl += "&page=" + page;
                 } else {
                     pageUrl += "?page=" + page;
@@ -86,7 +134,7 @@ public class HMScrapingService implements SwipeStyleService {
 
             String priceText = "";
             try {
-                WebElement priceElement = productElement.findElement(By.cssSelector("de46d3"));
+                WebElement priceElement = productElement.findElement(By.cssSelector(".de46d3"));
                 priceText = priceElement.getText().replaceAll("[^0-9.]", "");
             } catch (NoSuchElementException e) {
                 priceText = "0";
@@ -98,12 +146,12 @@ public class HMScrapingService implements SwipeStyleService {
             String altImage = imgElement.getAttribute("data-altimage");
 
             if (altImage != null && !altImage.startsWith("http")) {
-                altImage = DOMAIN + "/" + altImage;
+                altImage = DOMAIN +  altImage;
             }
 
             String imageUrl = (altImage != null && !altImage.isEmpty()) ? altImage : imgSrc;
             if (imageUrl != null && !imageUrl.startsWith("http")) {
-                imageUrl = DOMAIN + "/" + imageUrl;
+                imageUrl = DOMAIN +  imageUrl;
             }
 
             String altText = imgElement.getAttribute("alt");

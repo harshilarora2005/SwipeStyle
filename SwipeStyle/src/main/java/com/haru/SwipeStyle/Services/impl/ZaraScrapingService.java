@@ -62,29 +62,25 @@ public class ZaraScrapingService implements SwipeStyleService {
                 for (WebElement productElement : productElements) {
 
                     try {
-//                        if (productsAddedThisScroll >= 8) {
-//                            break;
-//                        }
                         ClothingDTO product = extractProductData(productElement, gender);
                         if (product == null || product.getProductId() == null) {
                             continue;
                         }
                         ClothingDTO existingProduct = productMap.get(product.getProductId());
                         if (existingProduct == null){
-                            // New product - add if image is valid
                             if (isValidImage(product.getImageUrl())) {
                                 products.add(product);
                                 productMap.put(product.getProductId(), product);
                                 productsAddedThisScroll++;
                             }
                         } else {
-                            // Existing product - update if we now have a better image
+
                             if (isValidImage(product.getImageUrl()) &&
                                     !isValidImage(existingProduct.getImageUrl())) {
-                                // Update the existing product with better image
+
                                 existingProduct.setImageUrl(product.getImageUrl());
                                 existingProduct.setProductUrl(product.getProductUrl());
-                                // You might want to update other fields here as well
+
                             }
                         }
                     } catch (Exception e) {
@@ -106,6 +102,127 @@ public class ZaraScrapingService implements SwipeStyleService {
 
         return products;
     }
+
+    @Override
+    public List<ClothingDTO> scrapeProductsWithRange(String url, int startScroll, int endScroll, String gender) {
+        WebDriver driver = getWebDriver();
+        List<ClothingDTO> products = new ArrayList<>();
+        Set<String> seenProductIds = new HashSet<>();
+        Map<String, ClothingDTO> productMap = new HashMap<>();
+
+        try {
+            driver.get(url);
+
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+            wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.cssSelector("li.product-grid-product")
+            ));
+
+            try {
+                WebElement button = wait.until(ExpectedConditions.elementToBeClickable(
+                        By.cssSelector("button[aria-label='Switch to zoom 2']")
+                ));
+                button.click();
+                System.out.println("Button found and clicked");
+            } catch (NoSuchElementException e) {
+                System.out.println("Button not found");
+            }
+
+            handleCookieConsent(driver, wait);
+
+
+            System.out.println("Scrolling to start position: " + startScroll);
+            for (int scroll = 0; scroll < startScroll; scroll++) {
+                scrollToLoadMore(driver);
+                Thread.sleep(3000);
+            }
+
+
+            int totalScrollsToPerform = endScroll - startScroll;
+            System.out.println("Starting continuous scraping from scroll " + startScroll + " to " + endScroll + " (total: " + totalScrollsToPerform + " scrolls)");
+
+            for (int scroll = 0; scroll < totalScrollsToPerform; scroll++) {
+                int currentScrollPosition = startScroll + scroll;
+                int productsAddedThisScroll = 0;
+
+                List<WebElement> productElements = driver.findElements(
+                        By.cssSelector("li.product-grid-product")
+                );
+
+                System.out.println("Found " + productElements.size() + " total products on scroll " + (currentScrollPosition + 1));
+
+                List<WebElement> newProductElements = getNewProductElements(productElements, seenProductIds);
+                System.out.println("Processing " + newProductElements.size() + " new products");
+
+                for (WebElement productElement : newProductElements) {
+                    try {
+                        ClothingDTO product = extractProductData(productElement, gender);
+                        if (product == null || product.getProductId() == null) {
+                            continue;
+                        }
+
+                        seenProductIds.add(product.getProductId());
+
+                        ClothingDTO existingProduct = productMap.get(product.getProductId());
+                        if (existingProduct == null) {
+                            if (isValidImage(product.getImageUrl())) {
+                                products.add(product);
+                                productMap.put(product.getProductId(), product);
+                                productsAddedThisScroll++;
+                            }
+                        } else {
+                            if (isValidImage(product.getImageUrl()) &&
+                                    !isValidImage(existingProduct.getImageUrl())) {
+                                existingProduct.setImageUrl(product.getImageUrl());
+                                existingProduct.setProductUrl(product.getProductUrl());
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Error extracting product data: " + e.getMessage());
+                    }
+                }
+
+                System.out.println("Added " + productsAddedThisScroll + " new products on scroll " + (currentScrollPosition + 1));
+
+                if (productsAddedThisScroll == 0 && scroll > 0) {
+                    System.out.println("No new products found, stopping early at scroll " + (currentScrollPosition + 1));
+                    break;
+                }
+
+                if (scroll < totalScrollsToPerform - 1) {
+                    scrollToLoadMore(driver);
+                    Thread.sleep(5000);
+                }
+            }
+
+            System.out.println("Continuous scraping completed. Total products found: " + products.size());
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error in continuous scraping Zara products: " + e.getMessage(), e);
+        } finally {
+            driver.quit();
+        }
+
+        return products;
+    }
+    private List<WebElement> getNewProductElements(List<WebElement> allProductElements, Set<String> seenProductIds) {
+        List<WebElement> newElements = new ArrayList<>();
+
+        for (WebElement element : allProductElements) {
+            try {
+                String productId = element.getAttribute("data-productid");
+                if (productId != null && !seenProductIds.contains(productId)) {
+                    newElements.add(element);
+                }
+            } catch (Exception e) {
+                //
+            }
+        }
+
+        return newElements;
+    }
+
     private boolean isValidImage(String imageUrl) {
         return imageUrl != null &&
                 !imageUrl.isEmpty() &&

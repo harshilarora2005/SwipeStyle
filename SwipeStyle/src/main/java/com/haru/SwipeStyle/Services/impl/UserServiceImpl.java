@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -24,7 +26,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(dto.getUsername());
         user.setGender(dto.getGender());
         user.setRole(com.haru.SwipeStyle.Entities.Role.USER);
-        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setPassword(UUID.randomUUID().toString());
         user.setAuthType("OAUTH");
         return userRepo.save(user);
     }

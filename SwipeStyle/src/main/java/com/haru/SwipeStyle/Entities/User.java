@@ -34,8 +34,8 @@ public class User {
     @NotBlank(message = "Username is required")
     private String username;
 
-    @Column(nullable = false)
-    @NotBlank(message = "Username is required")
+    @Column
+    @NotBlank(message = "password is required")
     private String password;
 
     private String gender;
