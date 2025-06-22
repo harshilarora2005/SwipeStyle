@@ -16,7 +16,13 @@ import java.time.LocalDateTime;
 @Table(name = "user_clothing", indexes = {
         @Index(name = "idx_user_clothing", columnList = "user_id, clothing_id"),
         @Index(name = "idx_saved_at", columnList = "savedAt")
-})
+    },
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_user_clothing_interaction",
+                        columnNames = {"user_id", "clothing_id", "interactionType"})
+        }
+
+)
 public class UserClothing {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -26,6 +26,7 @@ const Body = () => {
   const detailsY = useTransform(scrollYProgress, [0, 1], [50, 0]);
   const detailsOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 1]);
   const detailsScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.9, 1]);
+  const cardRefs = useRef({});
 
   useEffect(() => {
     let intervalId;
@@ -104,6 +105,11 @@ const Body = () => {
       setSkippedItems(prev => [...prev, currentItem]);
       setCurrentCardIndex(prev => prev + 1);
     }
+    const frontCard = visibleCards[visibleCards.length - 1];
+    if (frontCard && cardRefs.current[frontCard.productId]) {
+      cardRefs.current[frontCard.productId].animateSwipe(-200); 
+      setDragPosition(-100);
+    }
   };
 
   const handleLike = () => {
@@ -111,6 +117,11 @@ const Body = () => {
       const currentItem = visibleCards[currentCardIndex];
       setLikedItems(prev => [...prev, currentItem]);
       setCurrentCardIndex(prev => prev + 1);
+    }
+    const frontCard = visibleCards[visibleCards.length - 1];
+    if (frontCard && cardRefs.current[frontCard.productId]) {
+      cardRefs.current[frontCard.productId].animateSwipe(200); 
+      setDragPosition(100);
     }
   };
 
@@ -144,32 +155,7 @@ const Body = () => {
       </div>
     );
   }
-
-  if (currentCardIndex >= visibleCards.length) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="text-center space-y-4 max-w-md">
-          <div className="w-20 h-20 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-            <IoHeart className="w-10 h-10 text-green-500" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900">
-            All caught up!
-          </h2>
-          <p className="text-gray-600">
-            You've viewed all available items. Check back later for more!
-          </p>
-          <div className="mt-6 p-4 bg-white rounded-lg shadow-sm">
-            <p className="text-sm text-gray-700">
-              <span className="font-medium text-green-600">{likedItems.length}</span> items liked, 
-              <span className="font-medium text-gray-500 ml-1">{skippedItems.length}</span> items skipped
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
-  const currentItem = visibleCards[currentCardIndex];
+  const currentItem = visibleCards[visibleCards.length - 1];
   const isSkipActive = dragPosition < -50;
   const isLikeActive = dragPosition > 50;
   return (
@@ -184,8 +170,7 @@ const Body = () => {
           borderRadius: isSkipActive ? '0 50% 50% 0' : '0',
           filter: isSkipActive ? 'blur(1px)' : 'none'
         }} />
-        
-        {/* Like side background pulse */}
+      
         <div className={`absolute right-0 top-0 w-1/3 h-full transition-all duration-300 ease-out ${
           isLikeActive 
             ? 'bg-gradient-to-l from-green-500/20 via-green-400/10 to-transparent shadow-2xl shadow-green-500/30' 
@@ -215,7 +200,9 @@ const Body = () => {
 
         <div className="grid place-items-center flex-1/2 relative z-20">
           {visibleCards.map((item,index)=>{
-            return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards} index={index} onDragPositionChange={setDragPosition}/>
+            return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards} index={index} onDragPositionChange={setDragPosition} 
+            ref={(el) => cardRefs.current[item.productId] = el}
+            />
           })}
         </div>
 

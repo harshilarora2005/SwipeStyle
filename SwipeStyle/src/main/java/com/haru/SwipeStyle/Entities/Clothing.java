@@ -54,7 +54,7 @@ public class Clothing {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "clothing", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "clothing", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
     private List<UserClothing> userInteractions = new ArrayList<>();
 
     @PrePersist

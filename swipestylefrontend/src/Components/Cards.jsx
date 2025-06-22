@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useImperativeHandle, forwardRef } from "react";
 import {
     motion,
     useMotionValue,
@@ -7,28 +7,24 @@ import {
     useScroll,
     useTransform,
 } from "motion/react";
-import { useInView } from "react-intersection-observer";
 
-const Cards = ({
+const Cards = forwardRef(({
     clothing,
     clothingData,
     setClothingData,
     index,
     onDragPositionChange,
-}) => {
+},ref) => {
     const {
         altText,
         imageUrl,
         productId,
     } = clothing;
 
-    const ref = useRef(null);
-
-    const { scrollY } = useScroll({ target: ref });
     const x = useMotionValue(0);
     const opacity = useTransform(x, [-150, 0, 150], [0.3, 1, 0.3]);
     const rotateRaw = useTransform(x, [-150, 150], [-18, 18]);
-
+    const motionRef = useRef(null);
     const isFrontCard = useMemo(() => {
         return productId === clothingData[clothingData.length - 1]?.productId;
     }, [productId, clothingData]);
@@ -38,7 +34,31 @@ const Cards = ({
     }, [isFrontCard, index]);
 
     const rotate = useTransform(rotateRaw, (latest) => `${latest + staticOffset}deg`);
+    const animateSwipe = useCallback((direction) => {
+        if (motionRef.current) {
+            motionRef.current.animate({
+                x: direction,
+                rotate: direction > 0 ? 18 : -18
+            }, {
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                duration: 1
+            });
+            setTimeout(() => {
+                setClothingData((prev) =>
+                    prev.filter((item) => item.productId !== productId)
+                );
+                if (onDragPositionChange) {
+                    onDragPositionChange(0);
+                }
+            }, 300);
+        }
+    }, [setClothingData, productId, onDragPositionChange]);
 
+    useImperativeHandle(ref, () => ({
+        animateSwipe
+    }));
     useMotionValueEvent(x, "change", (latest) => {
         if (onDragPositionChange && isFrontCard) {
         const absLatest = Math.abs(latest);
@@ -61,7 +81,7 @@ const Cards = ({
         );
         }
         if (onDragPositionChange) {
-        onDragPositionChange(0);
+            onDragPositionChange(0);
         }
     }, [x, setClothingData, productId, onDragPositionChange]);
 
@@ -75,7 +95,7 @@ const Cards = ({
         }}
         >
         <motion.div
-            ref={ref}
+            ref={motionRef}
             style={{
             x,
             rotate,
@@ -115,6 +135,6 @@ const Cards = ({
         </motion.div>
         </div>
     );
-};
+});
 
 export default Cards;
