@@ -146,4 +146,17 @@ public class UserController {
             return ResponseEntity.status(500).body("Update failed: " + e.getMessage());
         }
     }
+    @GetMapping("/get-id")
+    public ResponseEntity<?> getUserId(@RequestParam String email) {
+        try {
+            User user = userService.findByEmail(email);
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+            return ResponseEntity.ok(user.getId());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to get user ID for email: " + email);
+        }
+    }
 }

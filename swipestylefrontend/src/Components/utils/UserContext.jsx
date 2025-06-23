@@ -1,6 +1,7 @@
 import { createContext} from "react";
 
 const UserContext = createContext({
+    userId:null,
     userName: "Guest",
     isLoggedIn: false,
     userEmail: null,

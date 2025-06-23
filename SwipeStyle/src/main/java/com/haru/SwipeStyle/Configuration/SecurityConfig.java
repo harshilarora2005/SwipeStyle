@@ -28,7 +28,8 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/api/swipe-style/**",
                                 "/logout/**",
-                                "/api/users/updateGender"
+                                "/api/users/updateGender",
+                                "/api/users/get-id/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

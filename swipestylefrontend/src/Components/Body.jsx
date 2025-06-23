@@ -7,11 +7,12 @@ import Cards from './Cards';
 import CardDetails from './CardDetails';
 import { IoClose, IoHeart } from 'react-icons/io5';
 import { motion,useScroll, useTransform } from 'framer-motion';
+import useClothingInteraction from "./hooks/useClothingInteraction";
 const Body = () => {
   const [clothingData, setClothingData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scrapingInProgress, setScrapingInProgress] = useState(false);
-  const {userGender, setUserGender} = useContext(UserContext);
+  const {userGender, userEmail} = useContext(UserContext);
   const [visibleCards, setVisibleCards] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [initalScrape, setInitialScrape] = useState(false);
@@ -19,6 +20,7 @@ const Body = () => {
   const [likedItems, setLikedItems] = useState([]);
   const [skippedItems, setSkippedItems] = useState([]);
   const [dragPosition, setDragPosition] = useState(0);
+  const { interactWithClothing } = useClothingInteraction(userEmail);
   const BATCH_SIZE = 5;
   const scrollRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: scrollRef });
@@ -99,11 +101,12 @@ const Body = () => {
     return () => clearInterval(intervalId);
   }, [scrapingInProgress, clothingData, userGender]);
 
-  const handleSkip = () => {
+  const handleSkip = async() => {
     if (currentCardIndex < visibleCards.length) {
       const currentItem = visibleCards[currentCardIndex];
       setSkippedItems(prev => [...prev, currentItem]);
       setCurrentCardIndex(prev => prev + 1);
+      await interactWithClothing(currentItem.productId,'DISLIKED');
     }
     const frontCard = visibleCards[visibleCards.length - 1];
     if (frontCard && cardRefs.current[frontCard.productId]) {
@@ -112,11 +115,12 @@ const Body = () => {
     }
   };
 
-  const handleLike = () => {
+  const handleLike = async() => {
     if (currentCardIndex < visibleCards.length) {
       const currentItem = visibleCards[currentCardIndex];
       setLikedItems(prev => [...prev, currentItem]);
       setCurrentCardIndex(prev => prev + 1);
+      await interactWithClothing(currentItem.productId, 'LIKED');
     }
     const frontCard = visibleCards[visibleCards.length - 1];
     if (frontCard && cardRefs.current[frontCard.productId]) {

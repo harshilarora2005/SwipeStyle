@@ -16,3 +16,10 @@ export const LogoutUser = () => {
 export const UpdateGender = (UserDTO) => {
     return axios.put(REST_API_BASE_URL + "/updateGender", UserDTO,{ withCredentials: true })
 }
+export const GetUserID = (email) => {
+    return axios.get (REST_API_BASE_URL + "/get-id", {
+        params:{
+            email:email
+        }, 
+        withCredentials: true });
+}

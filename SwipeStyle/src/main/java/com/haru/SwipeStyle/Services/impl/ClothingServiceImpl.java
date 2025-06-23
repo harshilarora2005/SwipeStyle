@@ -121,4 +121,9 @@ public class ClothingServiceImpl implements ClothingService {
     public long getTotalCount() {
         return swipeStyleRepo.count();
     }
+
+    @Override
+    public long getId(String productId) {
+        return swipeStyleRepo.findIdByProductId(productId);
+    }
 }

@@ -33,4 +33,6 @@ public interface ClothingService {
     Set<String> findExistingProductIds(Set<String> productIds);
 
     long getTotalCount();
+
+    long getId(String productId);
 }
