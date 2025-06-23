@@ -8,6 +8,7 @@ import CardDetails from './CardDetails';
 import { IoClose, IoHeart } from 'react-icons/io5';
 import { motion,useScroll, useTransform } from 'framer-motion';
 import useClothingInteraction from "./hooks/useClothingInteraction";
+import useAuth from './hooks/useAuth';
 const Body = () => {
   const [clothingData, setClothingData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ const Body = () => {
   const detailsOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0, 1, 1]);
   const detailsScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 0.9, 1]);
   const cardRefs = useRef({});
-
+  
   useEffect(() => {
     let intervalId;
     
@@ -100,7 +101,15 @@ const Body = () => {
 
     return () => clearInterval(intervalId);
   }, [scrapingInProgress, clothingData, userGender]);
+  const { authLoading } = useAuth(); 
 
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 to-purple-50">
+            <p className="text-gray-600 text-lg">Loading account info...</p>
+            </div>
+        );
+    }
   const handleSkip = async() => {
     if (currentCardIndex < visibleCards.length) {
       const currentItem = visibleCards[currentCardIndex];
@@ -162,6 +171,22 @@ const Body = () => {
   const currentItem = visibleCards[visibleCards.length - 1];
   const isSkipActive = dragPosition < -50;
   const isLikeActive = dragPosition > 50;
+  const handleSkipByDrag = async (item, index) => {
+    if (index >= currentCardIndex) {
+      setSkippedItems(prev => [...prev, item]);
+      setCurrentCardIndex(prev => prev + 1);
+      await interactWithClothing(item.productId, 'DISLIKED');
+    }
+  };
+
+  const handleLikeByDrag = async (item, index) => {
+    if (index >= currentCardIndex) {
+      setLikedItems(prev => [...prev, item]);
+      setCurrentCardIndex(prev => prev + 1);
+      await interactWithClothing(item.productId, 'LIKED');
+    }
+  };
+
   return (
     <div ref={scrollRef} className='relative'>
       <div className='flex min-h-screen bg-gray-100 relative overflow-hidden'>
@@ -204,7 +229,8 @@ const Body = () => {
 
         <div className="grid place-items-center flex-1/2 relative z-20">
           {visibleCards.map((item,index)=>{
-            return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards} index={index} onDragPositionChange={setDragPosition} 
+            return <Cards key={item.productId || index} clothing={item} clothingData = {visibleCards} setClothingData={setVisibleCards} index={index} onDragPositionChange={setDragPosition}  onSwipeLeft={() => handleSkipByDrag(item, index)}
+            onSwipeRight={() => handleLikeByDrag(item, index)}
             ref={(el) => cardRefs.current[item.productId] = el}
             />
           })}

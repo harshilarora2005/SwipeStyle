@@ -1,16 +1,13 @@
-import {useState, useEffect, useContext } from "react";
+import {useState, useContext } from "react";
 import { User, Mail, Heart, Star, Grid3X3, Compass,Pencil,X } from "lucide-react";
 import UserContext from "./utils/UserContext";
 import { GetMyUser } from "../services/UserService";
 import { UpdateGender } from "../services/UserService";
+import useAuth from "./hooks/useAuth";
+import { Link } from "react-router";
 const Account = () => {
     const { 
-        setUserName, 
-        setIsLoggedIn, 
-        setUserEmail, 
-        setUserProfile, 
         setUserGender,
-        defaultProfileUrl,
         userName, 
         isLoggedIn, 
         userEmail, 
@@ -38,22 +35,15 @@ const Account = () => {
         setIsGenderDialogOpen(true);
     };
     const genderOptions = ['Male', 'Female', 'Unisex'];
-    useEffect(() => {
-        GetMyUser()
-            .then(res => {
-                const user = res.data
-                console.log(user);
-                setUserName(user.name || user.username);
-                setUserEmail(user.email);
-                setUserGender(user?.gender);
-                setUserProfile(user.profilePictureUrl || user.imageUrl || defaultProfileUrl);
-                setIsLoggedIn(true);
-            })
-            .catch(err => {
-                console.error("User not logged in", err);
-            });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const { authLoading } = useAuth(); 
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 to-purple-50">
+            <p className="text-gray-600 text-lg">Loading account info...</p>
+            </div>
+        );
+    }
 
     if (!isLoggedIn) {
         return (
@@ -91,8 +81,8 @@ const Account = () => {
                                 <h2 className="text-3xl font-bold text-gray-800 mb-4">{userName}</h2>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                <a
-                                    href="/collections"
+                                <Link 
+                                    to="/collections"
                                     className="bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 rounded-2xl p-6 text-center border border-pink-200 transition-all duration-200 shadow-lg hover:shadow-xl group"
                                 >
                                     <div className="bg-pink-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
@@ -100,10 +90,10 @@ const Account = () => {
                                     </div>
                                     <h3 className="text-xl font-bold text-pink-600 mb-1">Collections</h3>
                                     <p className="text-pink-700 text-sm">View your saved items</p>
-                                </a>
+                                </Link>
                                 
-                                <a
-                                    href="/explore"
+                                <Link
+                                    to="/explore"
                                     className="bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-2xl p-6 text-center border border-purple-200 transition-all duration-200 shadow-lg hover:shadow-xl group"
                                 >
                                     <div className="bg-purple-500 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform duration-200">
@@ -111,7 +101,7 @@ const Account = () => {
                                     </div>
                                     <h3 className="text-xl font-bold text-purple-600 mb-1">Explore</h3>
                                     <p className="text-purple-700 text-sm">Discover new items</p>
-                                </a>
+                                </Link>
                             </div>
                             <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
                                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">

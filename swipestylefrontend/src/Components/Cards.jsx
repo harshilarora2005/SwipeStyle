@@ -4,7 +4,6 @@ import {
     motion,
     useMotionValue,
     useMotionValueEvent,
-    useScroll,
     useTransform,
 } from "motion/react";
 
@@ -14,6 +13,8 @@ const Cards = forwardRef(({
     setClothingData,
     index,
     onDragPositionChange,
+    onSwipeLeft, 
+    onSwipeRight, 
 },ref) => {
     const {
         altText,
@@ -75,15 +76,26 @@ const Cards = forwardRef(({
 
     const handleDragEnd = useCallback(() => {
         const currentX = x.get();
-        if (Math.abs(currentX) > 50) {
-        setClothingData((prev) =>
-            prev.filter((item) => item.productId !== productId)
-        );
+        if (currentX < -50) {
+            if (onSwipeLeft) {
+                onSwipeLeft();
+            }
+            setClothingData((prev) =>
+                prev.filter((item) => item.productId !== productId)
+            );
+        } else if (currentX > 50) {
+            if (onSwipeRight) {
+                onSwipeRight();
+            }
+            setClothingData((prev) =>
+                prev.filter((item) => item.productId !== productId)
+            );
+        } else {
+            if (onDragPositionChange) {
+                onDragPositionChange(0);
+            }
         }
-        if (onDragPositionChange) {
-            onDragPositionChange(0);
-        }
-    }, [x, setClothingData, productId, onDragPositionChange]);
+    }, [x, setClothingData, productId, onDragPositionChange, onSwipeLeft, onSwipeRight]);
 
     return (
         <div

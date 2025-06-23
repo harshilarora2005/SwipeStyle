@@ -1,4 +1,5 @@
-import { saveClothingInteraction, getClothingID } from "../../services/ClothingService";
+import {getClothingID } from "../../services/ClothingService";
+import { saveClothingInteraction } from "../../services/UserClothingService";
 import { GetUserID } from "../../services/UserService";
 import { useState, useCallback } from "react";
 

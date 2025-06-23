@@ -1,5 +1,6 @@
 package com.haru.SwipeStyle.Entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -59,6 +60,7 @@ public class User {
     private String authType = "CUSTOM";
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+    @JsonManagedReference
     private List<UserClothing> savedClothingItems = new ArrayList<>();
 
     @PrePersist

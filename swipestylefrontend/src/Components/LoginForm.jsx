@@ -110,8 +110,6 @@ const LoginForm = () => {
 
             if (response.status === 200 || response.status === 201) {
                 navigate("/account");
-                alert(isLogin ? 'Login successful!' : 'Registration successful!');
-
                 setFormData({
                     usernameOrEmail: '',
                     email: '',

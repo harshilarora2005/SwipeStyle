@@ -6,11 +6,9 @@ import com.haru.SwipeStyle.DTOs.UserClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Entities.UserClothing;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
-import com.haru.SwipeStyle.Repository.SwipeStyleRepo;
 import com.haru.SwipeStyle.Services.ClothingService;
 import com.haru.SwipeStyle.Services.UserClothingService;
 import jakarta.validation.Valid;
-import org.openqa.selenium.interactions.Interaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +30,7 @@ public class SwipeStyleController {
 
     @Autowired
     private ClothingService clothingService;
+
     @Autowired
     private UserClothingService userClothingService;
 
@@ -90,25 +89,12 @@ public class SwipeStyleController {
                     .body("Error fetching products: " + e.getMessage());
         }
     }
-    @PostMapping("/save-interaction")
-    public ResponseEntity<?> saveInteraction(@Valid @RequestBody UserClothingDTO dto) {
-        try {
-            UserClothing interaction = userClothingService.save(dto);
-            return new ResponseEntity<>(interaction, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @GetMapping("/get-clothing-id")
     public ResponseEntity<?> getClothingId(@RequestParam String productId) {
         try {
             Long clothingId = clothingService.getId(productId);
             System.out.println(clothingId);
-            if (clothingId == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Clothing not found for productId: " + productId);
-            }
             return ResponseEntity.ok(clothingId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
