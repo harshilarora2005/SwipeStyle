@@ -2,13 +2,10 @@ package com.haru.SwipeStyle.Controllers;
 
 import com.haru.SwipeStyle.Components.ScraperCountdown;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
-import com.haru.SwipeStyle.DTOs.UserClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
-import com.haru.SwipeStyle.Entities.UserClothing;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
 import com.haru.SwipeStyle.Services.ClothingService;
 import com.haru.SwipeStyle.Services.UserClothingService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -100,6 +97,14 @@ public class SwipeStyleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to get clothing ID for productId: " + productId);
         }
+    }
+
+    @PostMapping("/recommend")
+    public List<ClothingDTO> recommendFromLikedItems(@RequestBody List<ClothingDTO> likedItem) {
+        List<Clothing> recommendations = clothingService.recommendBasedOnLikedItems(likedItem, 5);
+        return recommendations.stream()
+                .map(ClothingMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
 }

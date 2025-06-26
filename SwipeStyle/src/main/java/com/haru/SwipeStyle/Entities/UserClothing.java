@@ -31,12 +31,12 @@ public class UserClothing {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("user")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "clothing_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("clothing")
     private Clothing clothing;
 
     @Enumerated(EnumType.STRING)

@@ -22,7 +22,7 @@ public interface ClothingService {
 
     Clothing saveClothing(Clothing clothing);
 
-    List<Clothing> saveAllClothing(List<Clothing> clothingList);
+    void saveAllClothing(List<Clothing> clothingList);
 
     void deleteClothingById(Long id);
 
@@ -35,4 +35,6 @@ public interface ClothingService {
     long getTotalCount();
 
     long getId(String productId);
+
+    public List<Clothing> recommendBasedOnLikedItems(List<ClothingDTO> likedItems, int topN);
 }

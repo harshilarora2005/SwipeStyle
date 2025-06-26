@@ -1,6 +1,7 @@
 package com.haru.SwipeStyle.Mapper;
 
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
+import com.haru.SwipeStyle.Entities.Category;
 import com.haru.SwipeStyle.Entities.Clothing;
 import org.springframework.stereotype.Component;
 @Component
@@ -18,7 +19,8 @@ public class ClothingMapper {
                 clothing.getPrice(),
                 clothing.getImageUrls(),
                 clothing.getProductUrl(),
-                clothing.getAltText()
+                clothing.getAltText(),
+                clothing.getCategory().toString()
         );
     }
 
@@ -35,6 +37,7 @@ public class ClothingMapper {
         clothing.setImageUrls(dto.getImageUrl());
         clothing.setProductUrl(dto.getProductUrl());
         clothing.setAltText(dto.getAltText());
+        clothing.setCategory(Category.valueOf(dto.getCategory()));
 
         return clothing;
     }

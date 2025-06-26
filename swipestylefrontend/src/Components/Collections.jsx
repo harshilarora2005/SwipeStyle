@@ -9,7 +9,7 @@ const Collections = () => {
     const { userEmail,isLoggedIn } = useContext(UserContext);
     const { products, loading, error } = useGetProducts(userEmail, "LIKED");
     const { authLoading } = useAuth(); 
-
+    console.log(products);
     if (authLoading) {
         return (
             <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 to-purple-50">
@@ -80,7 +80,7 @@ const Collections = () => {
                             <div className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-2 border-2 border-transparent hover:border-pink-200">
                                 <div className="relative overflow-hidden">
                                     <img
-                                        src={item.imageUrls}
+                                        src={item.imageUrl}
                                         alt={item.altText}
                                         className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
                                     />

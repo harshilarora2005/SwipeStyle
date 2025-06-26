@@ -1,7 +1,7 @@
 package com.haru.SwipeStyle.Controllers;
 
+import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.DTOs.UserClothingDTO;
-import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Entities.InteractionType;
 import com.haru.SwipeStyle.Entities.UserClothing;
 import com.haru.SwipeStyle.Services.UserClothingService;
@@ -36,7 +36,7 @@ public class UserClothingController {
     @GetMapping("/get-interactions")
     public ResponseEntity<?> getInteractions(@RequestParam long userId, @RequestParam InteractionType interactionType) {
         try{
-            List<Clothing> response = userClothingService.findByInteraction(userId,interactionType);
+            List<ClothingDTO> response = userClothingService.findByInteraction(userId,interactionType);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

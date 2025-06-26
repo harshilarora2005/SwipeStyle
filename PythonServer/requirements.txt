@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+sentence-transformers
+openai
+pydantic
+transformers

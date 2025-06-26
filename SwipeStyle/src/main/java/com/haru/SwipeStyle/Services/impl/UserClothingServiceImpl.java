@@ -1,11 +1,13 @@
 package com.haru.SwipeStyle.Services.impl;
 
+import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.DTOs.UserClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Entities.InteractionType;
 import com.haru.SwipeStyle.Entities.User;
 import com.haru.SwipeStyle.Entities.UserClothing;
 import com.haru.SwipeStyle.Exceptions.DuplicateResourceException;
+import com.haru.SwipeStyle.Mapper.ClothingMapper;
 import com.haru.SwipeStyle.Repository.SwipeStyleRepo;
 import com.haru.SwipeStyle.Repository.UserClothingRepo;
 import com.haru.SwipeStyle.Repository.UserRepo;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserClothingServiceImpl implements UserClothingService {
@@ -52,8 +55,9 @@ public class UserClothingServiceImpl implements UserClothingService {
     }
 
     @Override
-    public List<Clothing> findByInteraction(Long userId, InteractionType interactionType) {
-        return repo.findClothingByUserAndInteractionType(userId,interactionType);
+    public List<ClothingDTO> findByInteraction(Long userId, InteractionType interactionType) {
+        List<Clothing> clothing =  repo.findClothingByUserAndInteractionType(userId,interactionType);
+        return clothing.stream().map(ClothingMapper::toDTO).collect(Collectors.toList());
     }
     @Override
     public boolean existsByClothingId(Long clothingId) {

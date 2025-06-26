@@ -60,7 +60,7 @@ public class User {
     private String authType = "CUSTOM";
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("user")
     private List<UserClothing> savedClothingItems = new ArrayList<>();
 
     @PrePersist

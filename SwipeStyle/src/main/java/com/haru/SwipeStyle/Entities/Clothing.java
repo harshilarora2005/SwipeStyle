@@ -49,6 +49,10 @@ public class Clothing {
     @Column(name = "alt_text",columnDefinition = "TEXT")
     private String altText;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Category category;
+
     @Column(name="created_at",nullable = false)
     private LocalDateTime createdAt;
 
@@ -56,7 +60,7 @@ public class Clothing {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "clothing", cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("clothing")
     private List<UserClothing> userInteractions = new ArrayList<>();
 
     @PrePersist

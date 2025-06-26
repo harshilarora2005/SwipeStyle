@@ -128,19 +128,27 @@ public class HMScrapingService implements SwipeStyleService {
             String productId = productElement.getAttribute("data-articlecode");
             if (productId == null || productId.isEmpty()) return null;
 
-            WebElement linkElement = productElement.findElement(By.cssSelector("a.d8ba09"));
+            WebElement linkElement = productElement.findElement(By.xpath(".//a[h2]"));
             String productUrl = linkElement.getAttribute("href");
-            String name = linkElement.getAttribute("title");
 
+            String name = "";
+            try {
+                WebElement nameElement = linkElement.findElement(By.xpath(".//h2"));
+                name = nameElement.getText();
+            } catch (NoSuchElementException e) {
+                name = "Unknown";
+            }
             String priceText = "";
             try {
-                WebElement priceElement = productElement.findElement(By.cssSelector(".de46d3"));
+                WebElement priceElement = productElement.findElement(By.xpath(".//p//span[contains(text(), 'Rs.') or contains(text(), '₹')]"));
                 priceText = priceElement.getText().replaceAll("[^0-9.]", "");
             } catch (NoSuchElementException e) {
                 priceText = "0";
             }
             String price = priceText.isEmpty() ? "Price Not Found" : priceText;
-
+            if (price.startsWith(".")) {
+                price = price.substring(1);
+            }
             WebElement imgElement = productElement.findElement(By.cssSelector("img[data-src]"));
             String imgSrc = imgElement.getAttribute("data-src");
             String altImage = imgElement.getAttribute("data-altimage");

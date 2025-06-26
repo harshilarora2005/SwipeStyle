@@ -30,6 +30,9 @@ public class UrlProvider {
     JobScheduler jobScheduler;
 
     @Autowired
+    private ClothingService clothingService;
+
+    @Autowired
     SwipeStyleRepo swipeStyleRepo;
 
     @Autowired
@@ -331,7 +334,7 @@ public class UrlProvider {
                     .map(ClothingMapper::toEntity)
                     .collect(Collectors.toList());
 
-            swipeStyleRepo.saveAll(clothingEntities);
+            clothingService.saveAllClothing(clothingEntities);
             System.out.println("Successfully saved " + newProducts.size() + " new products");
             scraperCountdown.markScraperDone();
         } else {
