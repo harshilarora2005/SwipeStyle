@@ -339,6 +339,8 @@ public class UrlProvider {
             scraperCountdown.markScraperDone();
         } else {
             System.out.println("No new products to save - all were duplicates");
+            scraperCountdown.markScraperDone();
+
         }
     }
 }

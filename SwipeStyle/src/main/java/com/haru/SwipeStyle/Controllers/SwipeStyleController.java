@@ -3,18 +3,17 @@ package com.haru.SwipeStyle.Controllers;
 import com.haru.SwipeStyle.Components.ScraperCountdown;
 import com.haru.SwipeStyle.DTOs.ClothingDTO;
 import com.haru.SwipeStyle.Entities.Clothing;
+import com.haru.SwipeStyle.Entities.RecommendationRequest;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
 import com.haru.SwipeStyle.Services.ClothingService;
-import com.haru.SwipeStyle.Services.UserClothingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
@@ -28,8 +27,6 @@ public class SwipeStyleController {
     @Autowired
     private ClothingService clothingService;
 
-    @Autowired
-    private UserClothingService userClothingService;
 
     @GetMapping("/products")
     public ResponseEntity<?> getProducts(
@@ -100,8 +97,12 @@ public class SwipeStyleController {
     }
 
     @PostMapping("/recommend")
-    public List<ClothingDTO> recommendFromLikedItems(@RequestBody List<ClothingDTO> likedItem) {
-        List<Clothing> recommendations = clothingService.recommendBasedOnLikedItems(likedItem, 5);
+    public List<ClothingDTO> recommendFromLikedItems(@RequestBody RecommendationRequest request) {
+        List<Clothing> recommendations = clothingService.recommendBasedOnLikedItems(
+                request.getLikedItems(),
+                request.getPreviouslyRecommended() != null ? request.getPreviouslyRecommended() : new HashSet<>(),
+                5
+        );
         return recommendations.stream()
                 .map(ClothingMapper::toDTO)
                 .collect(Collectors.toList());

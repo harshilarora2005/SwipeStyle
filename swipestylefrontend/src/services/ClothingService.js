@@ -11,8 +11,13 @@ export const getClothingID = (productID) => {
         withCredentials:true
     })
 }   
-export const getRecommendations = async (likedItems) => {
-    return axios.post(REST_API_BASE_URL+"/recommend", likedItems,{
-        withCredentials:true
+export const getRecommendations = async (likedItems, previouslyRecommended = []) => {
+    const requestBody = {
+        likedItems: likedItems,
+        previouslyRecommended: previouslyRecommended
+    };
+    
+    return axios.post(REST_API_BASE_URL + "/recommend", requestBody, {
+        withCredentials: true
     });
 }

@@ -164,7 +164,9 @@ public class ClothingServiceImpl implements ClothingService {
     }
 
     @Override
-    public List<Clothing> recommendBasedOnLikedItems(List<ClothingDTO> likedItems, int topN) {
+    public List<Clothing> recommendBasedOnLikedItems(List<ClothingDTO> likedItems,
+                                                     Set<String> previouslyRecommended,
+                                                     int topN) {
         if (likedItems == null || likedItems.isEmpty()) {
             return List.of();
         }
@@ -177,7 +179,7 @@ public class ClothingServiceImpl implements ClothingService {
         List<List<Double>> likedVectors = likedItems.stream()
                 .map(item -> {
                     try {
-                        return embeddingService.getEmbedding(item.getAltText()); // or item.getName()
+                        return embeddingService.getEmbedding(item.getAltText());
                     } catch (Exception e) {
                         return null;
                     }
@@ -191,6 +193,7 @@ public class ClothingServiceImpl implements ClothingService {
 
         List<Clothing> allItems = swipeStyleRepo.findAll().stream()
                 .filter(item -> !likedItemIds.contains(item.getProductId()))
+                .filter(item -> !previouslyRecommended.contains(item.getProductId())) // Exclude previously recommended
                 .toList();
 
         List<Pair<Clothing, Double>> scored = new ArrayList<>();
@@ -209,5 +212,6 @@ public class ClothingServiceImpl implements ClothingService {
                 .map(Pair::getKey)
                 .toList();
     }
+
 
 }

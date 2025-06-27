@@ -3,7 +3,6 @@ import { Eye, EyeOff, User, Mail, Lock, Sparkles, Heart} from 'lucide-react';
 import * as Yup from 'yup';
 import { LoginUser, RegisterUser, LogoutUser } from '../services/UserService';
 import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa"
 import { useNavigate } from 'react-router';
 const LoginForm = () => {
     const navigate = useNavigate();
@@ -364,14 +363,6 @@ const LoginForm = () => {
                     >
                         <FcGoogle className="w-5 h-5" />
                         Continue with Google
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/facebook'}
-                        className="w-full flex items-center justify-center gap-3 bg-blue-500 text-white border border-gray-800 py-2 rounded-xl shadow-sm hover:bg-gray-900 transition-all"
-                    >
-                        <FaFacebook className="w-5 h-5" />
-                        Continue with Facebook
                     </button>
                 </div>
                 <div className="text-center mt-6 text-gray-500 text-sm">

@@ -36,5 +36,5 @@ public interface ClothingService {
 
     long getId(String productId);
 
-    public List<Clothing> recommendBasedOnLikedItems(List<ClothingDTO> likedItems, int topN);
+    public List<Clothing> recommendBasedOnLikedItems(List<ClothingDTO> likedItems,Set<String> previouslyRecommended, int topN);
 }
