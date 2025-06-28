@@ -35,9 +35,6 @@ When clothes are scraped from external sites, an AI service (like OpenAI) genera
 ### 3. Preference Learning
 When users swipe right on items, the system stores those tokens and gradually builds a preference profile. The recommendation engine uses these weighted preferences to suggest new items.
 
-### 4. Outfit Builder
-The "Build outfit for today" feature selects compatible items based on user preferences, creating complete outfits with tops, bottoms, shoes, and accessories that match the user's style.
-
 ## Technical Implementation Details
 
 The technical artifacts I've created include:
@@ -53,3 +50,6 @@ The technical artifacts I've created include:
 5. **React Components**: Key UI components including the swipe card and main application interface with mobile-first design.
 
 6. **Implementation Plan**: A phased approach to building the complete system.
+
+### 5. API Documentation
+Click [here](https://www.example.com](https://harshilarora2005.github.io/SwipeStyle/) to see the API documentation and endpoints
