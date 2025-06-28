@@ -20,16 +20,16 @@ const Footer = () => {
                 Swipe, style, and shine with the latest trends tailored just for you.
                 </p>
                 <div className="flex space-x-4">
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <a href="https://www.instagram.com/_harshilarora?igsh=MWlneWlvNGRmaTU0&utm_source=qr" target='_blank' className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
                     <FaInstagram className="w-5 h-5 text-purple-600" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <a href="https://github.com/harshilarora2005" target='_blank' className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
                     <FaGithub className="w-5 h-5 text-purple-600" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <a href="https://www.linkedin.com/in/harshil-arora-1690a4200/" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5" target='_blank'>
                     <FaLinkedin className="w-5 h-5 text-purple-600" />
                 </a>
-                <a href="#" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
+                <a href="mailto:harshil.arora205@gmail.com" target='_blank' className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all hover:-translate-y-0.5">
                     <Mail className="w-5 h-5 text-purple-600" />
                 </a>
                 </div>
@@ -46,18 +46,7 @@ const Footer = () => {
                 ))}
                 </ul>
             </div>
-            <div>
-                <h3 className="font-semibold text-gray-800 mb-4">Support</h3>
-                <ul className="space-y-2">
-                {['Contact Me'].map((link) => (
-                    <li key={link}>
-                    <a href="#" className="text-gray-600 hover:text-purple-600 transition-colors">
-                        {link}
-                    </a>
-                    </li>
-                ))}
-                </ul>
-            </div>
+            
             </div>
 
             <div className="border-t border-pink-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">

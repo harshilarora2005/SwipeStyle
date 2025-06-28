@@ -10,6 +10,7 @@ public class ScraperCountdown{
 
     public void markScraperDone() {
         latch.countDown();
+        System.out.println("Scraper marked done. Remaining: " + latch.getCount());
     }
 
     public void awaitCompletion() throws InterruptedException {

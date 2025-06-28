@@ -199,7 +199,7 @@ public class UrlProvider {
             String gender = detectGender(url);
             List<ClothingDTO> scrapedProducts;
 
-            int batchSize = isZaraUrl(url) ? 3 : 2;
+            int batchSize = isZaraUrl(url) ? 5 : 3;
             int endPage = Math.min(nextPageStart + batchSize, maxContinuousPages);
 
             if (isZaraUrl(url)) {
@@ -233,38 +233,6 @@ public class UrlProvider {
             System.err.println("Error in continuous scraping for URL: " + url + " - " + e.getMessage());
             jobEntity.failJob();
             jobRepository.save(jobEntity);
-        }
-    }
-
-    public void triggerContinuousScrapingForUrl(String url) {
-        if (!continuousScrapingEnabled) {
-            System.out.println("Continuous scraping is disabled");
-            return;
-        }
-
-        String trimmedUrl = url.trim();
-        if (!urls.contains(trimmedUrl)) {
-            System.out.println("URL not in configured list: " + trimmedUrl);
-            return;
-        }
-
-        String continuousJobName = generateContinuousJobName(trimmedUrl);
-        jobScheduler.enqueue(() -> runContinuousScrapingForUrl(trimmedUrl, continuousJobName));
-    }
-
-    public void stopContinuousScrapingForUrl(String url) {
-        String continuousJobName = generateContinuousJobName(url.trim());
-        jobScheduler.delete(continuousJobName);
-        System.out.println("Stopped continuous scraping for URL: " + url);
-    }
-
-    public void resetPageCounterForUrl(String url) {
-        String trimmedUrl = url.trim();
-        AtomicInteger counter = urlPageCounters.get(trimmedUrl);
-        if (counter != null) {
-            int initialValue = isZaraUrl(trimmedUrl) ? zaraMaxScrolls : hmMaxPages;
-            counter.set(initialValue);
-            System.out.println("Reset page counter for " + url + " to " + initialValue);
         }
     }
 

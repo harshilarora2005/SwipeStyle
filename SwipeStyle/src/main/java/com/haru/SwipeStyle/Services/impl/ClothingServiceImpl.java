@@ -175,7 +175,6 @@ public class ClothingServiceImpl implements ClothingService {
                 .map(ClothingDTO::getProductId)
                 .collect(Collectors.toSet());
 
-        // Get embeddings on-the-fly using altText
         List<List<Double>> likedVectors = likedItems.stream()
                 .map(item -> {
                     try {
@@ -193,7 +192,7 @@ public class ClothingServiceImpl implements ClothingService {
 
         List<Clothing> allItems = swipeStyleRepo.findAll().stream()
                 .filter(item -> !likedItemIds.contains(item.getProductId()))
-                .filter(item -> !previouslyRecommended.contains(item.getProductId())) // Exclude previously recommended
+                .filter(item -> !previouslyRecommended.contains(item.getProductId()))
                 .toList();
 
         List<Pair<Clothing, Double>> scored = new ArrayList<>();
@@ -212,6 +211,4 @@ public class ClothingServiceImpl implements ClothingService {
                 .map(Pair::getKey)
                 .toList();
     }
-
-
 }
