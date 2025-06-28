@@ -1,0 +1,437 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: User Management API
+  description: "Endpoints for user registration, authentication, and profile management"
+- name: User Clothing API
+  description: Endpoints for saving and retrieving user interactions with clothing
+- name: SwipeStyle API
+  description: Endpoints for clothing retrieval and recommendations
+paths:
+  /api/users/updateGender:
+    put:
+      tags:
+      - User Management API
+      summary: Update user gender
+      description: Updates the gender of the user profile.
+      operationId: updateGender
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserDTO"
+        required: true
+      responses:
+        "500":
+          description: Update failed
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: Gender updated successfully
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/register:
+    post:
+      tags:
+      - User Management API
+      summary: Register a new user
+      description: "Creates a new user account with email, username, and password."
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegistrationDTO"
+        required: true
+      responses:
+        "400":
+          description: Invalid registration data
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: User registered successfully
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/logout:
+    post:
+      tags:
+      - User Management API
+      summary: Logout current user
+      description: Clears session and authentication cookies. Returns a Google logout
+        URL if OAuth2 login was used.
+      operationId: logout
+      responses:
+        "200":
+          description: Logout successful
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/login:
+    post:
+      tags:
+      - User Management API
+      summary: Login user
+      description: "Authenticates the user using email and password, and creates a\
+        \ session."
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserLoginDTO"
+        required: true
+      responses:
+        "200":
+          description: Login successful
+          content:
+            '*/*':
+              schema:
+                type: object
+        "401":
+          description: Invalid credentials
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/user-clothing/save-interaction:
+    post:
+      tags:
+      - User Clothing API
+      summary: Save user interaction with clothing
+      description: "Stores an interaction (e.g., LIKE, SKIP) between a user and a\
+        \ clothing item. Returns HTTP 409 if interaction already exists."
+      operationId: saveInteraction
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserClothingDTO"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/swipe-style/recommend:
+    post:
+      tags:
+      - SwipeStyle API
+      summary: Get clothing recommendations based on liked items
+      description: Returns a list of recommended clothing items given a set of liked
+        items and previously recommended products.
+      operationId: recommendFromLikedItems
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationRequest"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClothingDTO"
+  /login/success:
+    get:
+      tags:
+      - o-auth-controller
+      operationId: loginSuccess
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/me:
+    get:
+      tags:
+      - User Management API
+      summary: Get current authenticated user
+      description: "Returns details of the logged-in user, supporting both OAuth2\
+        \ and form login."
+      operationId: getLoggedInUser
+      responses:
+        "401":
+          description: User not authenticated
+          content:
+            '*/*':
+              schema:
+                type: object
+        "200":
+          description: User info returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: User not found
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/get-id:
+    get:
+      tags:
+      - User Management API
+      summary: Get user ID by email
+      description: Returns the internal user ID for a given email.
+      operationId: getUserId
+      parameters:
+      - name: email
+        in: query
+        description: Email address of the user
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: User ID returned
+          content:
+            '*/*':
+              schema:
+                type: object
+        "404":
+          description: User not found
+          content:
+            '*/*':
+              schema:
+                type: object
+        "500":
+          description: Error retrieving user ID
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/users/exists/{email}:
+    get:
+      tags:
+      - User Management API
+      summary: Check if user exists
+      description: Checks whether a user account exists by email.
+      operationId: checkUserExists
+      parameters:
+      - name: email
+        in: path
+        description: Email to check
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Email existence returned
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/user-clothing/get-interactions:
+    get:
+      tags:
+      - User Clothing API
+      summary: Get user interactions by type
+      description: "Retrieves a list of clothing items the user has interacted with,\
+        \ filtered by interaction type."
+      operationId: getInteractions
+      parameters:
+      - name: userId
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: interactionType
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - LIKED
+          - DISLIKED
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/swipe-style/products:
+    get:
+      tags:
+      - SwipeStyle API
+      summary: Get paginated clothing products
+      description: "Returns a paginated list of clothing items. If scraping is still\
+        \ in progress, responds with HTTP 202."
+      operationId: getProducts
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/swipe-style/products/{gender}:
+    get:
+      tags:
+      - SwipeStyle API
+      summary: Get products filtered by gender
+      description: "Returns clothing items for a specified gender (e.g., MALE, FEMALE,\
+        \ UNISEX). If scraping is in progress, responds with HTTP 202."
+      operationId: getProductsByGender
+      parameters:
+      - name: gender
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/swipe-style/get-clothing-id:
+    get:
+      tags:
+      - SwipeStyle API
+      summary: Get clothing entity ID from productId
+      description: Returns the internal database ID for a given productId.
+      operationId: getClothingId
+      parameters:
+      - name: productId
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+components:
+  schemas:
+    UserDTO:
+      type: object
+      properties:
+        email:
+          type: string
+        username:
+          type: string
+        password:
+          type: string
+        gender:
+          type: string
+        profilePictureUrl:
+          type: string
+        authType:
+          type: string
+    UserRegistrationDTO:
+      required:
+      - email
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          maxLength: 50
+          minLength: 3
+          type: string
+        email:
+          type: string
+        password:
+          maxLength: 2147483647
+          minLength: 8
+          type: string
+        gender:
+          type: string
+        profilePictureUrl:
+          type: string
+    UserLoginDTO:
+      required:
+      - password
+      - usernameOrEmail
+      type: object
+      properties:
+        usernameOrEmail:
+          type: string
+        password:
+          type: string
+    UserClothingDTO:
+      required:
+      - clothingId
+      - interactionType
+      - userId
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+        clothingId:
+          type: integer
+          format: int64
+        interactionType:
+          type: string
+          enum:
+          - LIKED
+          - DISLIKED
+    ClothingDTO:
+      type: object
+      properties:
+        productId:
+          type: string
+        name:
+          type: string
+        gender:
+          type: string
+        price:
+          type: string
+        imageUrl:
+          type: string
+        productUrl:
+          type: string
+        altText:
+          type: string
+        category:
+          type: string
+    RecommendationRequest:
+      type: object
+      properties:
+        likedItems:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClothingDTO"
+        previouslyRecommended:
+          uniqueItems: true
+          type: array
+          items:
+            type: string

@@ -6,6 +6,8 @@ import com.haru.SwipeStyle.Entities.Clothing;
 import com.haru.SwipeStyle.Entities.RecommendationRequest;
 import com.haru.SwipeStyle.Mapper.ClothingMapper;
 import com.haru.SwipeStyle.Services.ClothingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"})
 @RestController
 @RequestMapping("/api/swipe-style")
+@Tag(name = "SwipeStyle API", description = "Endpoints for clothing retrieval and recommendations")
 public class SwipeStyleController {
 
     @Autowired
@@ -27,8 +30,11 @@ public class SwipeStyleController {
     @Autowired
     private ClothingService clothingService;
 
-
     @GetMapping("/products")
+    @Operation(
+            summary = "Get paginated clothing products",
+            description = "Returns a paginated list of clothing items. If scraping is still in progress, responds with HTTP 202."
+    )
     public ResponseEntity<?> getProducts(
             @RequestParam(defaultValue = "0") int page) {
 
@@ -49,6 +55,10 @@ public class SwipeStyleController {
     }
 
     @GetMapping("/products/{gender}")
+    @Operation(
+            summary = "Get products filtered by gender",
+            description = "Returns clothing items for a specified gender (e.g., MALE, FEMALE, UNISEX). If scraping is in progress, responds with HTTP 202."
+    )
     public ResponseEntity<?> getProductsByGender(@PathVariable String gender) {
         try {
             if (!scraperCountdown.isCompleted()) {
@@ -58,26 +68,14 @@ public class SwipeStyleController {
             }
             System.out.println("Fetching products for gender: " + gender);
             List<ClothingDTO> products;
-            if(gender.equals("UNISEX")) {
+            if (gender.equals("UNISEX")) {
                 products = clothingService.getAllProductsAsDTO();
-                System.out.println("Total products in database: " + products.size());
-            }else{
+            } else {
                 products = clothingService.getProductsByGender(gender.toUpperCase());
             }
-            System.out.println("Products found: " + products.size());
-            if (products.isEmpty()) {
-                return ResponseEntity.noContent().build();
-            }
-            if (!products.isEmpty()) {
-                ClothingDTO firstProduct = products.get(0);
-                System.out.println("First product details:");
-                System.out.println("ProductId: " + firstProduct.getProductId());
-                System.out.println("Name: " + firstProduct.getName());
-                System.out.println("Price: " + firstProduct.getPrice());
-                System.out.println("Gender: " + firstProduct.getGender());
-                System.out.println("ImageUrl: " + firstProduct.getImageUrl());
-            }
-            return ResponseEntity.ok(products);
+            return products.isEmpty()
+                    ? ResponseEntity.noContent().build()
+                    : ResponseEntity.ok(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error fetching products: " + e.getMessage());
@@ -85,10 +83,13 @@ public class SwipeStyleController {
     }
 
     @GetMapping("/get-clothing-id")
+    @Operation(
+            summary = "Get clothing entity ID from productId",
+            description = "Returns the internal database ID for a given productId."
+    )
     public ResponseEntity<?> getClothingId(@RequestParam String productId) {
         try {
             Long clothingId = clothingService.getId(productId);
-            System.out.println(clothingId);
             return ResponseEntity.ok(clothingId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -97,6 +98,10 @@ public class SwipeStyleController {
     }
 
     @PostMapping("/recommend")
+    @Operation(
+            summary = "Get clothing recommendations based on liked items",
+            description = "Returns a list of recommended clothing items given a set of liked items and previously recommended products."
+    )
     public List<ClothingDTO> recommendFromLikedItems(@RequestBody RecommendationRequest request) {
         List<Clothing> recommendations = clothingService.recommendBasedOnLikedItems(
                 request.getLikedItems(),
@@ -107,5 +112,4 @@ public class SwipeStyleController {
                 .map(ClothingMapper::toDTO)
                 .collect(Collectors.toList());
     }
-
 }
