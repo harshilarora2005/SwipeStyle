@@ -1,0 +1,1 @@
+import{a as e}from"./index-Bm40GKLM.js";const n="http://localhost:8080/api/user-clothing",s=t=>e.post(n+"/save-interaction",t,{withCredentials:!0}),i=(t,r)=>e.get(n+"/get-interactions",{params:{userId:t,interactionType:r},withCredentials:!0});export{i as g,s};

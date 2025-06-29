@@ -17,13 +17,12 @@ const ForYou = () => {
     const { isLoggedIn, userEmail } = useContext(UserContext);
     const { authLoading } = useAuth();
     const { products, loading: productsLoading, error: productsError } = useGetProducts(userEmail, "LIKED");
-
+    const { products: dislikedProducts, loading: dislikedLoading, error: dislikedError } = useGetProducts(userEmail, "DISLIKED");
     const [recommendations, setRecommendations] = useState([]);
     const [recoLoading, setRecoLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
     const [recommendationsError, setRecommendationsError] = useState(null);
-    
-    // Track previously recommended items
+
     const [previouslyRecommended, setPreviouslyRecommended] = useState(new Set());
     
     const isInitialLoadRef = useRef(false);
@@ -63,7 +62,15 @@ const ForYou = () => {
     } = useCardAnimations();
 
     const memoizedProducts = useMemo(() => products, [products]);
+    const dislikedProductIds = useMemo(() => {
+        if (!dislikedProducts || dislikedProducts.length === 0) return new Set();
+        return new Set(dislikedProducts.map(product => product.productId));
+    }, [dislikedProducts]);
 
+    const filterOutDislikedProducts = useCallback((recs) => {
+        if (dislikedProductIds.size === 0) return recs;
+        return recs.filter(rec => !dislikedProductIds.has(rec.productId));
+    }, [dislikedProductIds]);
     const fetchRecommendations = useCallback(async (productsToUse, isLoadMore = false) => {
         if (!productsToUse || productsToUse.length === 0) return;
         
@@ -71,15 +78,16 @@ const ForYou = () => {
             const data = await getRecommendations(productsToUse, Array.from(previouslyRecommended));
             
             if (data.data && data.data.length > 0) {
+                const filteredData = filterOutDislikedProducts(data.data);
                 if (isLoadMore) {
                     setRecommendations(prev => {
-                        const newRecs = data.data.filter(newRec => 
+                        const newRecs = filteredData.filter(newRec => 
                             !prev.some(existingRec => existingRec.productId === newRec.productId)
                         );
                         return [...prev, ...newRecs];
                     });
                 } else {
-                    setRecommendations(data.data);
+                    setRecommendations(filteredData);
                 }
                 
                 const newProductIds = data.data.map(item => item.productId);
@@ -99,7 +107,7 @@ const ForYou = () => {
             setRecommendationsError(err);
             hasErrorRef.current = true;
         }
-    }, [previouslyRecommended]);
+    }, [previouslyRecommended,filterOutDislikedProducts]);
 
     useEffect(() => {
         setPreviouslyRecommended(new Set());
@@ -114,7 +122,9 @@ const ForYou = () => {
             isInitialLoadRef.current = true;
             return;
         }
-
+        if (dislikedLoading) {
+            return;
+        }
         if (isInitialLoadRef.current) return;
 
         setRecoLoading(true);
@@ -124,7 +134,7 @@ const ForYou = () => {
             .finally(() => {
                 setRecoLoading(false);
             });
-    }, [memoizedProducts, fetchRecommendations]); 
+    }, [memoizedProducts, fetchRecommendations,dislikedLoading]); 
 
     useEffect(() => {
         const shouldLoadMore = 
@@ -133,7 +143,7 @@ const ForYou = () => {
             !isLoadingMoreRef.current &&
             !hasErrorRef.current &&
             memoizedProducts?.length > 0;
-
+            !dislikedLoading;
         if (shouldLoadMore) {
             isLoadingMoreRef.current = true;
             setLoadingMore(true);
@@ -189,7 +199,7 @@ const ForYou = () => {
         );
     }
 
-    if (productsLoading) {
+    if (productsLoading || dislikedLoading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
                 <Loading />
@@ -203,7 +213,9 @@ const ForYou = () => {
     if (productsError) {
         return <Error error={productsError} />;
     }
-
+    if (dislikedError) {
+        return <Error error={dislikedError} />;
+    }
     if (recoLoading) {
         return (
             <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
@@ -246,8 +258,6 @@ const ForYou = () => {
             </div>
         );
     }
-
-    // Handle case where no more recommendations are available
     if (recommendations.length === 0 && !recoLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
