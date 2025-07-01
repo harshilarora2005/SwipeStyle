@@ -1,5 +1,6 @@
 import axios from 'axios';
-const REST_API_BASE_URL = "http://localhost:8080/api/user-clothing";
+import { USER_CLOTHING_API_BASE_URL } from '../../public/constants';
+const REST_API_BASE_URL = USER_CLOTHING_API_BASE_URL
 
 export const saveClothingInteraction = (UserClothingDTO) => {
     return axios.post(REST_API_BASE_URL+ "/save-interaction", UserClothingDTO,{ withCredentials: true })

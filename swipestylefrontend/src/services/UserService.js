@@ -1,5 +1,6 @@
 import axios from 'axios';
-const REST_API_BASE_URL = "http://localhost:8080/api/users";
+import { USERS_API_BASE_URL } from '../../public/constants';
+const REST_API_BASE_URL = USERS_API_BASE_URL
 
 export const RegisterUser= (UserDTO) => {
     return axios.post(REST_API_BASE_URL + "/register", UserDTO,{ withCredentials: true });

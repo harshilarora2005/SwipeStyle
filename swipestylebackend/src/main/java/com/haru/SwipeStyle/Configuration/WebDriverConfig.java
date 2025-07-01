@@ -39,7 +39,7 @@ public class WebDriverConfig {
                 WebDriverManager.chromedriver().setup();
                 ChromeOptions chromeOptions = new ChromeOptions();
                 if (headless) {
-                    chromeOptions.addArguments("--headless=new"); // modern headless mode
+                    chromeOptions.addArguments("--headless=new");
                 }
                 chromeOptions.addArguments("--no-sandbox");
                 chromeOptions.addArguments("--disable-dev-shm-usage");

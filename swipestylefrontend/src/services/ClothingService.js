@@ -1,5 +1,6 @@
 import axios from 'axios';
-const REST_API_BASE_URL = "http://localhost:8080/api/swipe-style";
+import { SWIPE_STYLE_API_BASE_URL } from '../../public/constants';
+const REST_API_BASE_URL = SWIPE_STYLE_API_BASE_URL;
 export const getClothing = (gender) => {
     return axios.get(REST_API_BASE_URL + "/products/"+ gender);
 }

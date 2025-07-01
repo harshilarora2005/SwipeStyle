@@ -1,1 +1,0 @@
-import{j as e}from"./index-Bm40GKLM.js";const s=()=>e.jsxs("div",{className:"h-screen flex flex-col items-center justify-center text-center",children:[e.jsx("h1",{className:"text-4xl font-bold mb-2",children:"404"}),e.jsx("p",{className:"text-lg text-gray-600",children:"Oops! The page you're looking for doesn't exist."})]});export{s as default};

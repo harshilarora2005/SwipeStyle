@@ -1,1 +1,5 @@
 /PythonServer/venv
+docker-compose.yml
+nginx.conf
+Dockerfile
+.env
