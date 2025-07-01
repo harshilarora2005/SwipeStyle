@@ -48,8 +48,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:8080/account", true)
-                        .failureUrl("http://localhost:8080/login?error=true")
+                        .defaultSuccessUrl("http://localhost:5173/account", true)
+                        .failureUrl("http://localhost:5173/login?error=true")
                 )
                 .logout(logout -> logout
                         .logoutSuccessUrl("http://localhost:8080")
