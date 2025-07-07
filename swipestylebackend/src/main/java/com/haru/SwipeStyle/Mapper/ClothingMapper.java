@@ -37,7 +37,13 @@ public class ClothingMapper {
         clothing.setImageUrls(dto.getImageUrl());
         clothing.setProductUrl(dto.getProductUrl());
         clothing.setAltText(dto.getAltText());
-        clothing.setCategory(Category.valueOf(dto.getCategory()));
+        if(dto.getCategory() != null) {
+            clothing.setCategory(Category.valueOf(dto.getCategory()));
+        }
+        else{
+            clothing.setCategory(null);
+        }
+
 
         return clothing;
     }

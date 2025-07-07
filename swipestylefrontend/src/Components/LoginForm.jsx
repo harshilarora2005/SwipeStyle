@@ -358,7 +358,7 @@ const LoginForm = () => {
                     <div className="flex flex-col gap-3">
                     <button
                         type="button"
-                        onClick={() => window.location.href = 'http://swipestyle-backend:8080/oauth2/authorization/google'}
+                        onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
                         className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 py-2 rounded-xl shadow-sm hover:bg-gray-50 transition-all"
                     >
                         <FcGoogle className="w-5 h-5" />

@@ -12,7 +12,7 @@ export const GetMyUser = () => {
     return axios.get(REST_API_BASE_URL + "/me", { withCredentials: true })
 }
 export const LogoutUser = () => {
-    return axios.post(REST_API_BASE_URL + "/logout", { withCredentials: true })
+    return axios.post(REST_API_BASE_URL + "/logout",{},{ withCredentials: true })
 }
 export const UpdateGender = (UserDTO) => {
     return axios.put(REST_API_BASE_URL + "/updateGender", UserDTO,{ withCredentials: true })

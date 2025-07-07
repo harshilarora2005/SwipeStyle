@@ -1,11 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { useContext, memo, useCallback, useMemo } from "react";
+import React, { useContext, memo, useCallback, useMemo, useState } from "react";
 import UserContext from "./utils/UserContext";
 import useGetProducts from "./hooks/useGetProducts";
 import Loading from "./Loading";
 import { useNavigate } from "react-router";
-import useAuth from "./hooks/useAuth";
-
+import axios from 'axios';
 
 const ProductCard = memo(({ item, index }) => {
     const handleClick = useCallback(() => {
@@ -56,6 +55,7 @@ const ProductCard = memo(({ item, index }) => {
 });
 
 ProductCard.displayName = 'ProductCard';
+
 const EmptyState = memo(() => (
     <div className="text-center py-20">
         <div className="text-8xl mb-6">💔</div>
@@ -66,15 +66,74 @@ const EmptyState = memo(() => (
         Start exploring and save items you love 💕
         </p>
     </div>
-    ));
+));
 
-    EmptyState.displayName = 'EmptyState';
+EmptyState.displayName = 'EmptyState';
 
-    const Collections = () => {
+const AestheticAnalysis = memo(({ aesthetic, isLoading, onAnalyze }) => {
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 max-w-4xl mx-auto">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500 mx-auto mb-4"></div>
+                    <p className="text-gray-600">Analyzing your aesthetic style... ✨</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!aesthetic) {
+        return (
+            <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 max-w-4xl mx-auto">
+                <div className="text-center">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                        Discover Your Aesthetic 🎨
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                        Let AI analyze your liked items to reveal your unique style preferences
+                    </p>
+                    <button
+                        onClick={onAnalyze}
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:from-purple-600 hover:to-pink-600 transform hover:scale-105 transition-all duration-300 shadow-lg"
+                    >
+                        Analyze My Style ✨
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 max-w-4xl mx-auto">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4 text-center">
+                Your Aesthetic Analysis 🎨
+            </h3>
+            <div className="bg-gradient-to-r from-pink-50 via-purple-50 to-pink-100 rounded-3xl p-8 shadow-md">
+                <div className="whitespace-pre-wrap text-gray-600 leading-relaxed text-lg font-light tracking-wide">
+                    {aesthetic}
+                </div>
+            </div>
+            <div className="text-center mt-4">
+                <button
+                    onClick={onAnalyze}
+                    className="text-purple-600 hover:text-purple-800 font-semibold text-sm transition-colors duration-300"
+                >
+                    Re-analyze Style
+                </button>
+            </div>
+        </div>
+    );
+});
+
+AestheticAnalysis.displayName = 'AestheticAnalysis';
+
+const Collections = () => {
     const navigate = useNavigate();
     const { userEmail, isLoggedIn } = useContext(UserContext);
     const { products, loading, error } = useGetProducts(userEmail, "LIKED");
-    const { authLoading } = useAuth();
+    const [aesthetic, setAesthetic] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+
     const handleNavigateHome = useCallback(() => {
         navigate("/");
     }, [navigate]);
@@ -83,13 +142,81 @@ const EmptyState = memo(() => (
         const count = products?.length || 0;
         return `${count} ${count === 1 ? 'item' : 'items'} saved`;
     }, [products?.length]);
-    if (authLoading) {
-        return (
-        <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 to-purple-50">
-            <p className="text-gray-600 text-lg">Loading account info...</p>
-        </div>
-        );
-    }
+
+    const analyzeAesthetic = useCallback(async () => {
+        if (!products || products.length === 0) {
+            alert("No liked items to analyze!");
+            return;
+        }
+
+        setIsAnalyzing(true);
+        
+        try {
+            const altTexts = products
+                .map(item => item.altText)
+                .filter(altText => altText && altText.trim() !== "");
+
+            if (altTexts.length === 0) {
+                alert("No alt text available for analysis!");
+                setIsAnalyzing(false);
+                return;
+            }
+
+            const prompt = `
+                Analyze the following product descriptions from a user's liked items and determine their aesthetic style preferences. 
+                
+                Product descriptions:
+                ${altTexts.map((text, index) => `${index + 1}. ${text}`).join('\n')}
+                
+                Based on these descriptions, please:
+                Identify the dominant aesthetic style(s) (e.g., dark academia, goth, cottagecore, minimalist, boho, vintage, streetwear, etc.)
+                Give in the form, "Your aesthetic feels like {___}"
+                Just replace {___} with the aesthetic
+            `;
+            console.log(import.meta.env.VITE_GEMINI_API_KEY);
+            const response = await axios.post(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+                {
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: prompt
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            const analysis = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            
+            if (analysis) {
+                setAesthetic(analysis);
+            } else {
+                throw new Error("No analysis received from Gemini API");
+            }
+        } catch (error) {
+            console.error("Error analyzing aesthetic:", error);
+            
+            if (error.response?.status === 400) {
+                alert("Invalid request to Gemini API. Please check your API key and try again.");
+            } else if (error.response?.status === 403) {
+                alert("Access denied. Please verify your Gemini API key has the necessary permissions.");
+            } else if (error.response?.status === 429) {
+                alert("Too many requests. Please wait a moment and try again.");
+            } else {
+                alert(`Failed to analyze aesthetic: ${error.message}\n\nPlease check your Gemini API key and try again.`);
+            }
+        } finally {
+            setIsAnalyzing(false);
+        }
+    }, [products]);
 
     if (!isLoggedIn) {
         return (
@@ -131,6 +258,15 @@ const EmptyState = memo(() => (
             </div>
             </div>
         </div>
+
+        {/* Aesthetic Analysis Component */}
+        {products && products.length > 0 && (
+            <AestheticAnalysis 
+                aesthetic={aesthetic} 
+                isLoading={isAnalyzing} 
+                onAnalyze={analyzeAesthetic}
+            />
+        )}
 
         {(!products || products.length === 0) ? (
             <EmptyState />
