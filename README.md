@@ -6,6 +6,134 @@
 
 SwipeStyle is a web app that revolutionizes how you discover fashion. Swipe right on clothes you love, build your style profile, and get personalized recommendations powered by AI. Think Tinder, but for building your dream wardrobe.
 
+## 📱 App Visuals
+
+### 1. Explore Page (Landing)
+
+Experience the clean, modern interface that welcomes new users to SwipeStyle.
+
+#### Screenshots
+![Explore Page Hero](landing.png)
+*Clean landing page with call-to-action and feature highlights*
+
+### 2. Login & Registration
+
+Seamless authentication experience with Google OAuth integration.
+
+#### Screenshots
+![Login Page](login.png)
+*Modern login interface with social authentication*
+
+![Registration Flow](registration.png)
+*Step-by-step registration process with style preferences*
+
+
+### 3. Account Pages
+
+Comprehensive user profile management and settings interface.
+
+#### Screenshots
+![User Profile](accounts.png)
+*Personal profile with style statistics and preferences*
+
+
+### 4. Explore Page (After Login)
+
+Personalized discovery experience with AI-powered recommendations.
+
+#### Screenshots
+![Personalized Feed](clothing_after_login.png)
+*AI-curated fashion feed based on user preferences*
+
+![Item Details](clothing_detai;s.png)
+*Detailed product view with purchase options*
+
+#### Demo Video
+![Swiping Animations](Swiping animations.mp4)
+
+### 5. Collections
+
+Organize and manage your favorite fashion finds.
+
+#### Demo Videos
+![Collections](https://raw.githubusercontent.com/harshilarora2005/SwipeStyle/main/Collections.mp4)
+
+*Video: Creating and managing collections*
+
+### 6. For You Page
+
+Discover trending styles and personalized recommendations.
+
+#### Screenshots
+![For You Feed](./assets/screenshots/for-you-feed.png)
+*Trending items and personalized suggestions*
+
+![Style Challenges](./assets/screenshots/style-challenges.png)
+*Interactive styling challenges and quizzes*
+
+![Similar Items](./assets/screenshots/similar-items.png)
+*AI-powered similar item recommendations*
+
+#### Demo Videos
+https://github.com/user-attachments/assets/your-video-id-here
+
+*Video: Personalized recommendations and style discovery*
+
+## 🎥 Video Formats Supported
+
+SwipeStyle supports various video formats for demonstrations and tutorials:
+
+### Supported Video Formats
+- **MP4** (recommended): `video.mp4`
+- **WebM**: `video.webm` 
+- **MOV**: `video.mov`
+- **AVI**: `video.avi`
+
+### GitHub Video Integration
+For GitHub-hosted videos, use this format:
+```markdown
+https://github.com/user-attachments/assets/video-id-here
+```
+
+### Local Video Files
+For locally stored videos:
+```markdown
+![Video Title](./assets/videos/demo-video.mp4)
+```
+
+### External Video Links
+For external platforms:
+```markdown
+[![Video Thumbnail](./assets/thumbnails/video-thumb.png)](https://youtube.com/watch?v=video-id)
+```
+
+---
+
+## 📸 Image Guidelines
+
+### Screenshot Standards
+- **Resolution**: 1920x1080 (desktop), 375x812 (mobile)
+- **Format**: PNG for UI screenshots, JPG for photos
+- **Naming**: Use kebab-case (e.g., `explore-page-hero.png`)
+
+### Directory Structure
+```
+assets/
+├── screenshots/
+│   ├── explore-hero.png
+│   ├── login-page.png
+│   ├── user-profile.png
+│   └── ...
+├── videos/
+│   ├── swipe-demo.mp4
+│   ├── login-flow.webm
+│   └── ...
+└── thumbnails/
+    ├── video-thumb-1.png
+    └── ...
+```
+
+---
 ## ✨ Key Features
 
 ### 🔥 Smart Discovery
