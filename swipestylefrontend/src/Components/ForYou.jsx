@@ -15,7 +15,6 @@ import Error from "./Error";
 
 const ForYou = () => {
     const { isLoggedIn, userEmail } = useContext(UserContext);
-    // const { authLoading } = useAuth();
     const { products, loading: productsLoading, error: productsError } = useGetProducts(userEmail, "LIKED");
     const { products: dislikedProducts, loading: dislikedLoading, error: dislikedError } = useGetProducts(userEmail, "DISLIKED");
     const [recommendations, setRecommendations] = useState([]);
@@ -183,13 +182,7 @@ const ForYou = () => {
             fetchRecommendations(memoizedProducts, false);
         }
     }, [memoizedProducts, fetchRecommendations]);
-    // if (authLoading) {
-    //     return (
-    //         <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 to-purple-50">
-    //             <p className="text-gray-600 text-lg">Loading account info...</p>
-    //         </div>
-    //     );
-    // }
+    
 
     if (!isLoggedIn) {
         return (

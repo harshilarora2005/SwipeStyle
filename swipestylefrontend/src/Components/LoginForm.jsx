@@ -20,7 +20,7 @@ const LoginForm = () => {
 
     const loginSchema = Yup.object().shape({
         usernameOrEmail: Yup.string()
-            .required('Username or Email is required')
+            .required('Email is required')
             .test('is-email-or-username', 'Invalid email or username', (value) => {
                 if (value) {
                     if (value.includes('@')) {
@@ -107,7 +107,7 @@ const LoginForm = () => {
 
             const response = await (isLogin ? LoginUser(payload) : RegisterUser(payload));
 
-            if (response.status === 200 || response.status === 201) {
+            if (response.status === 200 || response.status === 201 && isLogin) {
                 navigate("/account");
                 setFormData({
                     usernameOrEmail: '',
@@ -117,6 +117,9 @@ const LoginForm = () => {
                     gender: ''
                 });
                 setErrors({});
+            }
+            else{
+                navigate("/login");
             }
         } catch (error) {
             console.error('Error:', error.response ? error.response.data : error.message);
@@ -197,9 +200,9 @@ const LoginForm = () => {
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                     <input
-                                        type="text"
+                                        type="email"
                                         name="usernameOrEmail"
-                                        placeholder="Username or Email"
+                                        placeholder="Email"
                                         value={formData.usernameOrEmail}
                                         onChange={handleInputChange}
                                         className={`w-full pl-12 pr-4 py-3 rounded-xl border-2 transition-all focus:outline-none ${

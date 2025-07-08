@@ -20,11 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = {"http://localhost:5173", "http://localhost:3000"}, allowCredentials = "true")
@@ -64,25 +66,29 @@ public class UserController {
     })
     public ResponseEntity<?> login(
             @RequestBody UserLoginDTO loginDTO,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
-        SecurityContextHolder.clearContext();
+        try {
+            Authentication authRequest = new UsernamePasswordAuthenticationToken(
+                    loginDTO.getUsernameOrEmail(),
+                    loginDTO.getPassword()
+            );
 
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
+            Authentication authResult = authenticationManager.authenticate(authRequest);
+            SecurityContextHolder.getContext().setAuthentication(authResult);
+            HttpSession session = request.getSession(true);
+            session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+            System.out.println("Authentication successful: " + authResult.isAuthenticated());
+            System.out.println("Session ID: " + session.getId());
+            System.out.println("Principal: " + authResult.getPrincipal());
+            System.out.println("Authentication: " + authResult.isAuthenticated());
+            System.out.println("SecurityContext saved to session");
+            User user = userService.loginUser(loginDTO);
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        session = request.getSession(true);
-
-        User user = userService.loginUser(loginDTO);
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(user.getUsername(), loginDTO.getPassword());
-
-        Authentication authentication = authenticationManager.authenticate(authToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        request.getSession().setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
-        request.getSession().setAttribute("AUTH_TYPE", "FORM_LOGIN");
-        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/exists/{email}")
@@ -111,6 +117,11 @@ public class UserController {
     public ResponseEntity<?> getLoggedInUser(
             Authentication authentication,
             HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        System.out.println("Session exists: " + (session != null));
+        System.out.println("Session ID: " + (session != null ? session.getId() : "null"));
+        System.out.println("Authentication from parameter: " + authentication);
+        System.out.println("Authentication from SecurityContext: " + SecurityContextHolder.getContext().getAuthentication());
 
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
@@ -138,7 +149,7 @@ public class UserController {
         if (authentication instanceof UsernamePasswordAuthenticationToken) {
             if (principal instanceof UserDetails userDetails) {
                 String username = userDetails.getUsername();
-                User user = userService.findByUsername(username);
+                User user = userService.findByEmail(username);
                 if (user != null) {
                     return ResponseEntity.ok(user);
                 } else {
@@ -150,34 +161,33 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unsupported authentication type");
     }
 
-    @PostMapping("/logout")
-    @Operation(
-            summary = "Logout current user",
-            description = "Clears session and authentication cookies. Returns a Google logout URL if OAuth2 login was used."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Logout successful")
-    })
-    public ResponseEntity<?> logout(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            Authentication authentication) {
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
 
-        SecurityContextHolder.clearContext();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        // Debug logging
+        System.out.println("Logout - Authentication: " + authentication);
+        System.out.println("Logout - Is authenticated: " + (authentication != null ? authentication.isAuthenticated() : "null"));
+
+        // 1. Invalidate session first
         HttpSession session = request.getSession(false);
         if (session != null) {
+            System.out.println("Invalidating session: " + session.getId());
             session.invalidate();
         }
-
+        SecurityContextHolder.clearContext();
         Cookie[] cookies = request.getCookies();
+        System.out.println("Cookies array: " + (cookies == null ? "null" : "length=" + cookies.length));
         if (cookies != null) {
             for (Cookie cookie : cookies) {
-                if ("JSESSIONID".equals(cookie.getName())) {
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
+                if ("SESSION".equals(cookie.getName()) || "JSESSIONID".equals(cookie.getName())) {
+                    Cookie expiredCookie = new Cookie(cookie.getName(), null);
+                    expiredCookie.setPath("/");
+                    expiredCookie.setMaxAge(0);
+                    expiredCookie.setHttpOnly(true);
+                    response.addCookie(expiredCookie);
+                    System.out.println("Cleared cookie: " + cookie.getName());
                 }
             }
         }
@@ -192,6 +202,7 @@ public class UserController {
 
         return ResponseEntity.ok("Logged out successfully");
     }
+
 
     @PutMapping("/updateGender")
     @Operation(

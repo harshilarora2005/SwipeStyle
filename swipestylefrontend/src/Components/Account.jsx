@@ -116,7 +116,7 @@ const Account = () => {
         userProfile,
         userGender
     } = useContext(UserContext);
-    
+    console.log(isLoggedIn);
     const [isGenderDialogOpen, setIsGenderDialogOpen] = useState(false);
     const [selectedGender, setSelectedGender] = useState(userGender);
     const { authLoading } = useAuth();

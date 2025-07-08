@@ -48,8 +48,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public User loginUser(UserLoginDTO loginDTO) {
         String identifier = loginDTO.getUsernameOrEmail();
+        System.out.println("Login password"+loginDTO.getPassword());
         return userRepo.findByUsernameOrEmail(identifier, identifier)
-                .filter(user -> passwordEncoder.matches(loginDTO.getPassword(), user.getPassword()))
+                .filter(user -> {
+                    System.out.println("Found user:");
+                    System.out.println("Username: " + user.getUsername());
+                    System.out.println("Stored (hashed) password: " + user.getPassword());
+                    boolean matches = passwordEncoder.matches(loginDTO.getPassword(), user.getPassword());
+                    System.out.println("Password matches? " + matches);
+                    return matches;
+                })
                 .orElseThrow(() -> new RuntimeException("Invalid credentials"));
     }
 
