@@ -24,7 +24,7 @@ Seamless authentication experience with Google OAuth integration.
 ![Login Page](login.png)
 *Modern login interface with social authentication*
 
-![Registration Flow](registration.png)
+![Registration Flow](register.png)
 *Step-by-step registration process with style preferences*
 
 ### 3. Account Pages
