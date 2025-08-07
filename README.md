@@ -13,7 +13,7 @@ SwipeStyle is a web app that revolutionizes how you discover fashion. Swipe righ
 Experience the clean, modern interface that welcomes new users to SwipeStyle.
 
 #### Screenshots
-![Explore Page Hero](landing.png)
+![Explore Page Hero](explore.png)
 *Clean landing page with call-to-action and feature highlights*
 
 ### 2. Login & Registration
@@ -21,7 +21,7 @@ Experience the clean, modern interface that welcomes new users to SwipeStyle.
 Seamless authentication experience with Google OAuth integration.
 
 #### Screenshots
-![Login Page](login.png)
+![Login Page](landing.png)
 *Modern login interface with social authentication*
 
 ![Registration Flow](register.png)
