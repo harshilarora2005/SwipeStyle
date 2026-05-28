@@ -1,4 +1,4 @@
-# SwipeStyle 👗✨
+# SwipeStyle 
 
 *Tinder for Clothes - Discover your perfect style with AI-powered recommendations*
 
@@ -6,7 +6,7 @@
 
 SwipeStyle is a web app that revolutionizes how you discover fashion. Swipe right on clothes you love, build your style profile, and get personalized recommendations powered by AI. Think Tinder, but for building your dream wardrobe.
 
-## 📱 App Visuals
+## App Visuals
 
 ### 1. Explore Page (Landing)
 
@@ -68,27 +68,27 @@ https://github.com/user-attachments/assets/89d401b4-1b85-4565-925c-d45a28f60fc5
 
 *Video: Personalized recommendations and style discovery*
 
-## ✨ Key Features
+##  Key Features
 
-### 🔥 Smart Discovery
+### Smart Discovery
 
 * **Swipe Interface**: Intuitive left/right swiping to discover new pieces
 * **AI-Powered Matching**: Machine learning analyzes your preferences to surface perfect matches
 * **Visual-First Design**: High-quality images with smooth animations and transitions
 
-### 🎯 Personalized Experience
+### Personalized Experience
 
 * **Style Profiling**: AI learns your taste from swipes (casual vs formal, colors, patterns, materials)
 * **Smart Recommendations**: Algorithm improves with every interaction
 * **Preference Categories**: Color palettes, style aesthetics, occasions, and more
 
-### 💫 Organization Tools
+### Organization Tools
 
 * **Wishlist**: Save items you love for later purchase
 * **Outfit Builder**: Mix and match pieces to create complete looks
 * **Style Analytics**: Track your fashion preferences over time
 
-## 🛠 Tech Stack
+## Tech Stack
 
 **Frontend**: React + Tailwind CSS
 **Backend**: Spring Boot + PostgreSQL
@@ -96,7 +96,7 @@ https://github.com/user-attachments/assets/89d401b4-1b85-4565-925c-d45a28f60fc5
 **Authentication**: Google OAuth
 **Deployment**: Docker containerized
 
-## 🏗 Architecture Overview
+##  Architecture Overview
 
 ```
 ┌─────────────────────┐    ┌──────────────────────┐    ┌──────────────────────┐    ┌─────────────────────┐
@@ -108,7 +108,7 @@ https://github.com/user-attachments/assets/89d401b4-1b85-4565-925c-d45a28f60fc5
 └────────────────────┘    └─────────────────────┘    └─────────────────────┘    └────────────────────┘
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -254,12 +254,7 @@ npm start
 | `VITE_GEMINI_API_KEY` | Gemini API Key |
 
 
-## 🚀 Future Enhancements
-
-* More websites support, social features, seasonal styles, deal alerts
-
-
-## 🔗 Links
+## Links
 
 **Docs**: [docs.swipestyle.app](https://docs.swipestyle.app)
 **API Docs**: [GitHub Pages](https://harshilarora2005.github.io/SwipeStyle/)
